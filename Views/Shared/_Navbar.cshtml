@@ -1,0 +1,129 @@
+@model string
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@inject WebsiteTour.Models.AppDbContext DbContext
+
+<header class="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm">
+  <nav class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+    <a 
+      class="text-2xl font-black text-primary-dark tracking-tighter cursor-pointer no-underline"
+      href="/Home/Index"
+    >
+      VietExplore
+    </a>
+    
+    <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+      <a 
+        href="/Home/Index"
+        class="@(Model == "index" ? "text-primary border-b-2 border-primary pb-1 font-bold" : "text-slate-600 hover:text-primary") transition-all no-underline"
+      >
+        Trang Chủ
+      </a>
+      <a 
+        href="/Home/Tours"
+        class="@(Model == "tours" ? "text-primary border-b-2 border-primary pb-1 font-bold" : "text-slate-600 hover:text-primary") transition-all no-underline"
+      >
+        Danh Sách Tour
+      </a>
+      <a 
+        href="/Home/Deals"
+        class="@(Model == "deals" ? "text-primary border-b-2 border-primary pb-1 font-bold" : "text-slate-600 hover:text-primary") transition-all no-underline"
+      >
+        Ưu đãi
+      </a>
+      <a 
+        href="/Home/Index"
+        class="@(Model == "about" ? "text-primary border-b-2 border-primary pb-1 font-bold" : "text-slate-600 hover:text-primary") transition-all no-underline"
+      >
+        Giới thiệu
+      </a>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <i data-lucide="search" class="w-5 h-5 text-slate-500 cursor-pointer hover:text-primary transition-colors"></i>
+      <i data-lucide="heart" class="w-5 h-5 text-slate-500 cursor-pointer hover:text-primary transition-colors"></i>
+      @if (User.Identity?.IsAuthenticated == true)
+      {
+          <div class="relative group cursor-pointer py-2">
+              <div class="flex items-center gap-2">
+                  <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm uppercase shadow-sm">
+                      @(string.IsNullOrEmpty(User.Identity.Name) ? "U" : User.Identity.Name.Substring(0, 1))
+                  </div>
+                  <span class="text-sm font-bold text-slate-700 hidden md:block">@User.Identity.Name</span>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 group-hover:rotate-180 transition-transform"></i>
+              </div>
+              <div class="absolute right-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-56 z-50 translate-y-2 group-hover:translate-y-0">
+                  <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-2">
+                      <div class="px-4 py-3 border-b border-slate-50 mb-2">
+                          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Tài khoản của</p>
+                          <p class="text-sm font-bold text-slate-800 line-clamp-1">@User.Identity.Name</p>
+                      </div>
+                      <a href="/Home/Profile" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-colors no-underline">
+                          <i data-lucide="user" class="w-4 h-4"></i> Hồ sơ cá nhân
+                      </a>
+                      <a href="/Home/Bookings" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-colors no-underline">
+                          <i data-lucide="shopping-bag" class="w-4 h-4"></i> Lịch sử đặt Tour
+                      </a>
+                      @if (User.IsInRole("Admin"))
+                      {
+                          <a href="/Admin/Index" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-amber-600 hover:bg-amber-50 rounded-xl transition-colors no-underline">
+                              <i data-lucide="shield" class="w-4 h-4"></i> Quản trị Admin
+                          </a>
+                      }
+                      
+                      <div class="border-t border-slate-100 my-2"></div>
+                      <div class="px-4 py-2">
+                          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">Ví Voucher Của Bạn</p>
+                          @{
+                              var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                              int.TryParse(userIdStr, out int userId);
+                              var savedPromos = DbContext.UserPromoCodes
+                                  .Include(up => up.PromoCode)
+                                  .Where(up => up.UserId == userId && !up.IsUsed && up.PromoCode!.IsActive && up.PromoCode.ValidUntil >= DateTime.Now)
+                                  .Select(up => up.PromoCode)
+                                  .ToList();
+                          }
+                          @if(savedPromos.Any())
+                          {
+                              <div class="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
+                                  @foreach(var promo in savedPromos)
+                                  {
+                                      <div class="bg-primary/10 border border-primary/20 rounded-lg p-2 flex justify-between items-center group/promo cursor-pointer" onclick="navigator.clipboard.writeText('@promo.Code'); showToast('success', 'Đã copy mã: @promo.Code'); event.stopPropagation();">
+                                          <div>
+                                              <p class="text-xs font-bold text-primary">@promo.Code</p>
+                                              <p class="text-[10px] text-slate-500">Đơn từ $@promo.MinOrderValue</p>
+                                          </div>
+                                          <i data-lucide="copy" class="w-3 h-3 text-primary opacity-50 group-hover/promo:opacity-100"></i>
+                                      </div>
+                                  }
+                              </div>
+                          }
+                          else
+                          {
+                              <p class="text-xs text-slate-500 italic">Chưa lưu mã nào.</p>
+                          }
+                      </div>
+
+                      <div class="border-t border-slate-100 my-2"></div>
+                      <a href="/Home/Logout" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-colors no-underline">
+                          <i data-lucide="log-out" class="w-4 h-4"></i> Đăng xuất
+                      </a>
+                  </div>
+              </div>
+          </div>
+      }
+      else
+      {
+          <a class="flex items-center gap-2 cursor-pointer group no-underline" href="/Home/Login">
+             <i data-lucide="user-circle" class="w-6 h-6 text-slate-500 group-hover:text-primary transition-colors"></i>
+          </a>
+      }
+      <a 
+        href="/Home/Checkout"
+        class="bg-primary-dark text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 active:scale-95 transition-all shadow-md no-underline"
+      >
+        Đặt ngay
+      </a>
+    </div>
+  </nav>
+</header>

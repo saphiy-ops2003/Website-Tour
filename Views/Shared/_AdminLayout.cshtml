@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style type="text/tailwindcss">
+        @@theme {
+          --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+          --color-primary: #0f172a; /* Slate 900 for Admin */
+          --color-primary-light: #334155;
+          --color-accent: #3b82f6; /* Blue 500 for Admin */
+          --color-surface: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-surface font-sans text-slate-800 flex h-screen overflow-hidden antialiased">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex h-full shadow-sm z-20">
+        <div class="h-20 flex items-center px-8 border-b border-slate-100">
+            <a href="/Admin/Index" class="text-xl font-black text-primary tracking-tight">Admin<span class="text-accent">Panel</span></a>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Quản lý chung</p>
+            
+            <a href="/Admin/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Tổng quan
+            </a>
+            
+            <a href="/Admin/Bookings" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Bookings" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i> Đơn Đặt Tour
+            </a>
+            
+            <a href="/Admin/Tours" class="@(ViewContext.RouteData.Values["Action"]?.ToString() is "Tours" or "CreateTour" or "EditTour" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                <i data-lucide="map" class="w-5 h-5"></i> Danh sách Tour
+            </a>
+            
+            <a href="/Admin/Promos" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Promos" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                <i data-lucide="percent" class="w-5 h-5"></i> Mã Giảm Giá
+            </a>
+            
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mt-8 mb-4">Hệ thống</p>
+            
+            <a href="/Home/Index" class="text-slate-600 hover:bg-slate-50 hover:text-primary flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                <i data-lucide="globe" class="w-5 h-5"></i> Xem trang khách
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-100">
+            <div class="flex items-center gap-3 px-4 py-2">
+                <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
+                    A
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-slate-800">Admin</p>
+                    <a href="/Home/Logout" class="text-xs text-red-500 font-semibold hover:underline">Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+        <!-- Topbar -->
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10">
+            <h1 class="text-xl font-bold text-slate-800">@ViewData["Title"]</h1>
+            
+            <div class="flex items-center gap-4">
+                <button class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Content Scrollable -->
+        <div class="flex-1 overflow-y-auto p-8 relative">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Toast Notification System -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3"></div>
+
+    <script>
+      lucide.createIcons();
+
+      window.showToast = function(type, message) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        
+        toast.className = `flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl transform transition-all duration-300 translate-x-full opacity-0 max-w-sm ${
+            type === 'success' ? 'bg-slate-800 text-white' : 
+            type === 'error' ? 'bg-red-500 text-white' : 
+            'bg-white text-slate-800 border border-slate-200'
+        }`;
+        
+        let icon = type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-circle' : 'info';
+        
+        toast.innerHTML = `
+          <i data-lucide="${icon}" class="w-5 h-5 shrink-0"></i>
+          <p class="text-sm font-bold">${message}</p>
+        `;
+        
+        container.appendChild(toast);
+        lucide.createIcons();
+        
+        // Animate in
+        requestAnimationFrame(() => {
+          toast.classList.remove('translate-x-full', 'opacity-0');
+          toast.classList.add('translate-x-0', 'opacity-100');
+        });
+        
+        // Remove after 3s
+        setTimeout(() => {
+          toast.classList.remove('translate-x-0', 'opacity-100');
+          toast.classList.add('translate-x-full', 'opacity-0');
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      @if (TempData["SuccessMessage"] != null)
+      {
+          <text>
+            setTimeout(() => { showToast('success', @Html.Raw(Json.Serialize(TempData["SuccessMessage"]))); }, 100);
+          </text>
+      }
+      
+      @if (TempData["ErrorMessage"] != null)
+      {
+          <text>
+            setTimeout(() => { showToast('error', @Html.Raw(Json.Serialize(TempData["ErrorMessage"]))); }, 100);
+          </text>
+      }
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

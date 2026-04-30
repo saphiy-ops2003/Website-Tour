@@ -1,0 +1,137 @@
+@model IEnumerable<WebsiteTour.Models.Entities.Tour>
+@{
+    ViewData["Title"] = "Tours";
+}
+
+<div class="bg-slate-50 min-h-screen py-12">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row gap-8">
+      
+      <!-- Sidebar -->
+      <aside class="w-full md:w-1/4 space-y-8">
+        <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm sticky top-24">
+          <h3 class="text-2xl font-bold text-primary-dark mb-8 flex items-center gap-2">
+            <i data-lucide="filter" class="w-5 h-5"></i> Bộ Lọc
+          </h3>
+          
+          <div class="space-y-10">
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-4">Khoảng Giá</label>
+              <input type="range" class="w-full h-2 bg-slate-100 rounded-lg accent-primary cursor-pointer" />
+              <div class="flex justify-between mt-3 text-sm text-slate-500 font-medium">
+                <span>$0</span>
+                <span>$2,000+</span>
+              </div>
+            </div>
+
+            <div>
+               <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-4">Thời Gian</label>
+               <div class="space-y-3">
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                     <input type="checkbox" class="rounded text-primary focus:ring-primary w-5 h-5 border-slate-300" />
+                     <span class="text-slate-600 group-hover:text-primary transition-colors">1-3 ngày</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                     <input type="checkbox" class="rounded text-primary focus:ring-primary w-5 h-5 border-slate-300" checked />
+                     <span class="text-slate-600 group-hover:text-primary transition-colors">4-7 ngày</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                     <input type="checkbox" class="rounded text-primary focus:ring-primary w-5 h-5 border-slate-300" />
+                     <span class="text-slate-600 group-hover:text-primary transition-colors">Trên 1 tuần</span>
+                  </label>
+               </div>
+            </div>
+
+            <div>
+               <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-4">Vùng Miền</label>
+               <div class="flex flex-wrap gap-2">
+                  <button class="px-4 py-2 rounded-full text-xs font-semibold transition-all border border-slate-200 text-slate-600 hover:border-primary">Miền Bắc</button>
+                  <button class="px-4 py-2 rounded-full text-xs font-semibold transition-all bg-primary text-white shadow-lg">Miền Trung</button>
+                  <button class="px-4 py-2 rounded-full text-xs font-semibold transition-all border border-slate-200 text-slate-600 hover:border-primary">Miền Nam</button>
+               </div>
+            </div>
+          </div>
+
+          <button class="w-full mt-12 py-3.5 bg-slate-100 text-primary-dark font-bold rounded-xl hover:bg-slate-200 transition-all">
+            Xóa Tất Cả
+          </button>
+        </div>
+      </aside>
+
+      <!-- List -->
+      <div class="flex-1">
+         <div class="flex justify-between items-center mb-10">
+            <div>
+              <h1 class="text-4xl font-bold text-primary-dark mb-1">Khám Phá Việt Nam</h1>
+              <p class="text-slate-500 font-medium">Hiển thị @Model.Count() trải nghiệm hấp dẫn</p>
+            </div>
+            <div class="bg-white px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-3 shadow-sm">
+               <span class="text-xs font-bold text-slate-400 uppercase">Sắp xếp:</span>
+               <select class="border-none bg-transparent text-sm font-bold text-primary focus:ring-0 outline-none">
+                  <option>Phổ biến nhất</option>
+                  <option>Giá thấp nhất</option>
+               </select>
+            </div>
+         </div>
+
+         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @foreach (var tour in Model)
+            {
+              <a href="/Home/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 relative no-underline">
+                @if (!string.IsNullOrEmpty(tour.Badge))
+                {
+                  <div class="absolute top-4 left-4 z-20 bg-accent text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                    @tour.Badge
+                  </div>
+                }
+                <button class="absolute top-4 right-4 z-20 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/40 transition-colors">
+                  <i data-lucide="heart" class="w-5 h-5 text-white"></i>
+                </button>
+                <div class="relative h-64 overflow-hidden">
+                  <img src="@tour.Images.FirstOrDefault()?.ImageUrl" alt="@tour.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                    <div class="flex items-center gap-1.5 text-white bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-lg">
+                      <i data-lucide="star" class="w-4 h-4 fill-accent text-accent"></i>
+                      <span class="font-bold text-sm">@tour.Rating</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="p-6 flex-1 flex flex-col">
+                  <div class="flex items-center gap-2 text-slate-500 text-xs font-bold mb-3 uppercase tracking-wider">
+                    <i data-lucide="clock" class="w-4 h-4 text-primary"></i>
+                    @tour.Duration
+                  </div>
+                  <h3 class="font-bold text-xl text-slate-800 mb-4 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                    @tour.Title
+                  </h3>
+                  <div class="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <div class="text-xs text-slate-400 font-medium mb-1">Giá từ</div>
+                      <div class="font-black text-2xl text-primary-dark">
+                        $@tour.Price<span class="text-sm text-slate-400 font-medium tracking-normal">/khách</span>
+                      </div>
+                    </div>
+                    <div class="bg-primary-light/30 text-primary w-12 h-12 rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                      <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            }
+         </div>
+
+         <!-- Pagination -->
+         <div class="mt-16 flex justify-center items-center gap-3">
+            <button class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-white transition-all"><i data-lucide="chevron-left"></i></button>
+            <button class="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-white font-bold shadow-lg">1</button>
+            <button class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-white transition-all font-bold">2</button>
+            <button class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-white transition-all font-bold">3</button>
+            <span class="text-slate-300">...</span>
+            <button class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-white transition-all font-bold">8</button>
+            <button class="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 hover:bg-white transition-all"><i data-lucide="chevron-right"></i></button>
+         </div>
+      </div>
+    </div>
+  </div>
+</div>

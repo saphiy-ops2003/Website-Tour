@@ -1,0 +1,74 @@
+@model WebsiteTour.Models.Entities.Tour
+@{
+    ViewData["Title"] = "Thêm Tour Mới";
+    Layout = "_AdminLayout";
+}
+
+<div class="max-w-3xl">
+    <form asp-action="CreateTour" method="post" class="space-y-6">
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i data-lucide="map-plus" class="w-6 h-6 text-accent"></i> Thông tin Tour
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Tên Tour *</label>
+                    <input name="Title" required placeholder="Ví dụ: Hành Trình Vịnh Hạ Long 2N1Đ" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Mô tả</label>
+                    <textarea name="Description" rows="4" placeholder="Mô tả chi tiết về tour..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800 resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Giá người lớn ($) *</label>
+                    <input name="Price" type="number" step="0.01" required placeholder="299" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Thời gian *</label>
+                    <input name="Duration" required placeholder="2 Ngày 1 Đêm" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Danh mục *</label>
+                    <select name="CategoryId" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800">
+                        <option value="" disabled selected>Chọn danh mục...</option>
+                        @foreach (var c in (List<WebsiteTour.Models.Entities.Category>)ViewBag.Categories)
+                        {
+                            <option value="@c.Id">@c.Name</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Điểm đến *</label>
+                    <select name="DestinationId" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800">
+                        <option value="" disabled selected>Chọn điểm đến...</option>
+                        @foreach (var d in (List<WebsiteTour.Models.Entities.Destination>)ViewBag.Destinations)
+                        {
+                            <option value="@d.Id">@d.Name (@d.Region)</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Badge (nhãn)</label>
+                    <input name="Badge" placeholder="Ví dụ: Bán chạy, Mới" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Đánh giá (0–5)</label>
+                    <input name="Rating" type="number" step="0.1" min="0" max="5" value="4.5" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">URL Hình ảnh đại diện</label>
+                    <input name="imageUrl" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-4">
+            <button type="submit" class="bg-accent text-white px-8 py-3 rounded-xl font-bold shadow hover:opacity-90 transition-all flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i> Tạo Tour
+            </button>
+            <a href="/Admin/Tours" class="bg-slate-100 text-slate-700 px-8 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all">
+                Hủy
+            </a>
+        </div>
+    </form>
+</div>

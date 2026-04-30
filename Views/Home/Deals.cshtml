@@ -1,0 +1,167 @@
+@model IEnumerable<WebsiteTour.Models.Entities.PromoCode>
+@{
+    ViewData["Title"] = "Deals";
+}
+
+<div class="bg-white min-h-screen font-sans pb-24">
+      
+      <div class="max-w-7xl mx-auto px-6 py-12">
+        @if (ViewBag.LatestDeal != null)
+        {
+            var deal = (WebsiteTour.Models.Entities.Deal)ViewBag.LatestDeal;
+            var timeRemaining = deal.ValidUntil - DateTime.Now;
+            
+        <section class="relative rounded-3xl overflow-hidden h-[450px] flex items-center shadow-2xl">
+          <img 
+            src="@deal.ImageUrl" 
+            alt="Deal" 
+            class="absolute inset-0 w-full h-full object-cover"
+          />
+          <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+          <div class="relative z-10 p-16 max-w-3xl text-white">
+            <div class="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-full mb-6">
+              <i data-lucide="bolt" class="w-5 h-5 fill-white"></i>
+              <span class="font-bold text-xs uppercase tracking-widest">Flash Sale: Ưu đãi giới hạn</span>
+            </div>
+            <h1 class="text-5xl font-bold mb-4 leading-tight">@deal.Title</h1>
+            <p class="text-xl mb-10 text-slate-200">Dành riêng cho 50 khách hàng đầu tiên đặt tour trong tuần này.</p>
+            
+            <div class="flex items-center gap-8">
+              <div class="flex gap-3">
+                 <div class="bg-slate-900 w-16 h-16 rounded-xl flex flex-col items-center justify-center border border-white/10">
+                   <div class="text-xl font-bold">@Math.Max(0, timeRemaining.Days)</div>
+                   <div class="text-[8px] uppercase opacity-60 font-bold">Ngày</div>
+                 </div>
+                 <div class="bg-slate-900 w-16 h-16 rounded-xl flex flex-col items-center justify-center border border-white/10">
+                   <div class="text-xl font-bold">@Math.Max(0, timeRemaining.Hours)</div>
+                   <div class="text-[8px] uppercase opacity-60 font-bold">Giờ</div>
+                 </div>
+                 <div class="bg-slate-900 w-16 h-16 rounded-xl flex flex-col items-center justify-center border border-white/10">
+                   <div class="text-xl font-bold">@Math.Max(0, timeRemaining.Minutes)</div>
+                   <div class="text-[8px] uppercase opacity-60 font-bold">Phút</div>
+                 </div>
+              </div>
+              <a href="/Home/TourDetail/@deal.TourId" class="bg-accent hover:bg-accent-dark text-white px-8 py-4 rounded-xl font-bold shadow-xl transition-all flex items-center gap-2">
+                Nhận Ưu Đãi Ngay <i data-lucide="arrow-right" class="w-5 h-5"></i>
+              </a>
+            </div>
+          </div>
+        </section>
+        }
+
+        
+        <section class="mt-24">
+          <div class="flex justify-between items-end mb-12">
+            <div>
+              <h2 class="text-4xl font-bold text-primary-dark">Mã Giảm Giá Độc Quyền</h2>
+              <p class="text-slate-500 mt-2 text-lg">Lưu ngay mã giảm giá để nhận ưu đãi cho chuyến đi tiếp theo.</p>
+            </div>
+            <button class="text-primary font-bold flex items-center gap-1 hover:underline">
+              Xem tất cả mã <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var promo in Model)
+                {
+                   <div class="bg-white border border-slate-200 rounded-3xl p-8 relative flex flex-col h-full shadow-sm hover:shadow-xl transition-all group">
+                      <div class="flex justify-between items-start mb-8">
+                        <div class="w-14 h-14 bg-slate-50 text-primary rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                          <i data-lucide="percent" class="w-6 h-6"></i>
+                        </div>
+                        <span class="bg-slate-100 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest text-slate-500">@promo.Category</span>
+                      </div>
+                      <div class="mb-8">
+                         <div class="text-2xl font-bold text-slate-800 mb-1">@promo.Title</div>
+                         <p class="text-slate-500 text-sm">@promo.Description</p>
+                         @if(promo.MinOrderValue > 0) {
+                            <p class="text-xs text-orange-500 font-bold mt-2 bg-orange-50 px-2 py-1 rounded inline-block">Đơn tối thiểu: $@promo.MinOrderValue</p>
+                         }
+                      </div>
+                      <div class="mt-auto pt-6 border-t border-dashed border-slate-200 flex items-center justify-between gap-4">
+                        <div class="bg-slate-50 px-4 py-3 rounded-xl border border-slate-100 flex-1 overflow-hidden">
+                          <code class="font-bold text-slate-800 tracking-widest truncate block" id="code-@promo.Id">@promo.Code</code>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="navigator.clipboard.writeText('@promo.Code'); showToast('success', 'Đã sao chép mã: @promo.Code');" class="bg-slate-100 text-slate-500 p-3 rounded-xl shadow-sm active:scale-95 transition-all hover:bg-slate-200" title="Sao chép">
+                              <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="savePromo('@promo.Code')" class="bg-primary text-white px-4 py-3 rounded-xl shadow-lg active:scale-95 transition-all hover:bg-primary-dark font-bold text-sm">
+                              Lưu mã
+                            </button>
+                        </div>
+                      </div>
+                   </div>
+                }
+            }
+            else
+            {
+                <div class="col-span-3 text-center py-12 text-slate-500 font-medium">Hiện tại không có mã giảm giá nào đang hoạt động.</div>
+            }
+          </div>
+        </section>
+
+        
+         <section class="mt-24 bg-primary-dark rounded-[3rem] p-12 md:p-20 relative overflow-hidden text-white">
+           <div class="relative z-10 flex flex-col md:flex-row items-center gap-12">
+             <div class="flex-1">
+                <div class="inline-flex items-center gap-2 bg-blue-400/20 px-4 py-2 rounded-full mb-8">
+                  <i data-lucide="star" class="w-4 h-4 fill-white"></i>
+                  <span class="text-xs font-bold uppercase tracking-widest">Thành viên ưu tiên</span>
+                </div>
+                <h2 class="text-5xl font-bold mb-6">Gia nhập VietExplore Rewards</h2>
+                <p class="text-xl text-blue-100 mb-10 leading-relaxed max-w-lg">Nhận ngay 100 điểm thưởng khi đăng ký. Hưởng đặc quyền giảm giá lên đến 10%.</p>
+                <div class="flex gap-4">
+                  <button class="bg-white text-primary px-10 py-5 rounded-2xl font-bold text-lg">Đăng ký miễn phí</button>
+                  <button class="border border-white/20 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white/10">Tìm hiểu đặc quyền</button>
+                </div>
+             </div>
+             <div class="hidden lg:block w-[400px]">
+                <div class="bg-slate-50 rounded-[2.5rem] p-8 text-slate-800 shadow-2xl rotate-3">
+                   <div class="flex justify-between items-start mb-12">
+                      <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                         <i data-lucide="star" class="text-primary fill-primary"></i>
+                      </div>
+                      <div class="text-right">
+                         <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Hạng thẻ</div>
+                         <div class="text-primary font-black">@ViewBag.Tier</div>
+                      </div>
+                   </div>
+                   <div class="mb-10 uppercase tracking-widest font-bold text-xl line-clamp-1">@ViewBag.CardName</div>
+                   <div class="flex justify-between items-end">
+                      <div>
+                         <div class="text-[10px] text-slate-400 uppercase">Điểm tích lũy</div>
+                         <div class="text-3xl font-black text-primary">@ViewBag.UserPoints <span class="text-xs">pts</span></div>
+                      </div>
+                      <div class="bg-slate-400 w-12 h-8 rounded-lg opacity-20"></div>
+                   </div>
+                </div>
+             </div>
+           </div>
+         </section>
+      </div>
+    </div>
+
+@section Scripts {
+    <script>
+        async function savePromo(code) {
+            try {
+                const response = await fetch('/Home/SavePromoCode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Code: code })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    showToast('success', data.message);
+                } else {
+                    showToast('error', data.message);
+                }
+            } catch (err) {
+                showToast('error', "Có lỗi xảy ra, vui lòng thử lại.");
+            }
+        }
+    </script>
+}
