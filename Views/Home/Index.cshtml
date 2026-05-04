@@ -1,165 +1,307 @@
-@model IEnumerable<WebsiteTour.Models.Entities.Tour>
+@model WebsiteTour.Models.ViewModels.HomeIndexViewModel
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Trang Chủ";
 }
 
 <div class="font-sans">
-      
-      <section class="relative h-[650px] flex items-center justify-center overflow-hidden">
-        <div class="absolute inset-0 z-0">
-          <img 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaMglBYqPgTF8joy7vDWAjM86_b8K1qfmHY9JdwSasQ2CWwMDKTE4Yle9Iyd7-6d48UJyTYR0f_AOyu7OvddcOek58eZIE5b4IAzi3W1DpFh-avm8WieQcDKXnqUfCCucn3DU7W7-epn8xZsweGGfdJdwFWHEOmfTEvhBe44AZTbGE-rGuUfMMfDM6iXTv2dN_92q1DznBMEqHlPK3y495EO6jG7OZWcD03tc9l4H-kwR69ysrHSB2wEkkMASgt_A2AcpebwSXcA" 
-            alt="Ha Long Bay" 
-            class="w-full h-full object-cover"
-          />
-          <div class="absolute inset-0 bg-black/40"></div>
-        </div>
-        <div class="relative z-10 text-center px-6 max-w-4xl">
-          <h1>
-            Kết Nối Tâm Hồn Việt Nam
-          </h1>
-          <p class="text-xl md:text-2xl text-white/90 leading-relaxed max-w-3xl mx-auto font-light">
-            Chúng tôi không chỉ bán tour, chúng tôi mang đến những hành trình chạm tới trái tim và khám phá vẻ đẹp bất tận của dải đất hình chữ S.
-          </p>
-        </div>
-      </section>
+  <!-- Hero Section -->
+  <section class="relative h-[80vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaMglBYqPgTF8joy7vDWAjM86_b8K1qfmHY9JdwSasQ2CWwMDKTE4Yle9Iyd7-6d48UJyTYR0f_AOyu7OvddcOek58eZIE5b4IAzi3W1DpFh-avm8WieQcDKXnqUfCCucn3DU7W7-epn8xZsweGGfdJdwFWHEOmfTEvhBe44AZTbGE-rGuUfMMfDM6iXTv2dN_92q1DznBMEqHlPK3y495EO6jG7OZWcD03tc9l4H-kwR69ysrHSB2wEkkMASgt_A2AcpebwSXcA" alt="Vietnam Beauty" class="w-full h-full object-cover animate-pulse-slow" />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
+    </div>
+    <div class="relative z-10 text-center px-6 max-w-5xl mt-16">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-6 text-white/90 text-sm font-bold uppercase tracking-widest">
+        <i data-lucide="sparkles" class="w-4 h-4 text-accent"></i> Khám Phá Vẻ Đẹp Bất Tận
+      </div>
+      <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-6 drop-shadow-lg">
+        Kết Nối Tâm Hồn <span class="text-accent">Việt Nam</span>
+      </h1>
+      <p class="text-lg md:text-2xl text-white/80 leading-relaxed max-w-3xl mx-auto font-light mb-10 drop-shadow-md">
+        Không chỉ là những chuyến đi, chúng tôi mang đến cho bạn trải nghiệm độc bản, chạm tới trái tim và đánh thức mọi giác quan trên dải đất hình chữ S.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="/Home/Tours" class="px-8 py-4 bg-accent text-white font-bold rounded-2xl hover:bg-white hover:text-accent transition-all shadow-[0_0_40px_rgba(255,165,0,0.4)] hover:shadow-[0_0_60px_rgba(255,165,0,0.6)] text-lg no-underline flex items-center gap-2">
+          Khám Phá Ngay <i data-lucide="compass" class="w-5 h-5"></i>
+        </a>
+        <a href="#why-choose-us" class="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 backdrop-blur-md transition-all text-lg no-underline flex items-center gap-2">
+          Tìm Hiểu Thêm
+        </a>
+      </div>
+    </div>
+  </section>
 
-      
-      <section class="py-24 max-w-7xl mx-auto px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div class="space-y-8">
-            <div class="inline-block px-4 py-1.5 bg-green-50 text-green-700 font-bold text-xs tracking-widest uppercase rounded-full">
-              Về Chúng Tôi
-            </div>
-            <h2 class="text-4xl md:text-5xl font-bold text-primary-dark leading-tight">
-              VietnamVibe & Hành Trình Lan Tỏa Bản Sắc
-            </h2>
-            <div class="w-24 h-1.5 bg-accent rounded-full"></div>
-            <div class="space-y-6 text-slate-600 text-lg leading-relaxed">
-              <p>
-                Khởi đầu từ niềm đam mê mãnh liệt với văn hóa bản địa, VietnamVibe được thành lập bởi những người con Việt Nam luôn khát khao kể câu chuyện về đất nước mình một cách chân thực nhất.
-              </p>
-              <p>
-                Mỗi góc phố Hội An, mỗi cánh đồng lúa chín tại Mù Cang Chải hay những bữa cơm thân mật cùng người dân địa phương đều chứa đựng "Vibe" riêng biệt – một nhịp sống vừa hiện đại, vừa đậm đà bản sắc.
-              </p>
-            </div>
-            <a href="/Home/Tours" class="inline-flex items-center gap-3 border-2 border-primary text-primary px-8 py-4 rounded-2xl font-bold hover:bg-primary hover:text-white transition-all group no-underline">
-              Tìm hiểu thêm về hành trình
-              <span>
-                <i data-lucide="arrow-right" class="w-5 h-5"></i>
-              </span>
-            </a>
+  <!-- Stats Section -->
+  <section class="py-12 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-slate-100">
+        <div>
+          <div class="text-4xl md:text-5xl font-black text-primary mb-2">15K+</div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Khách Hàng Hài Lòng</p>
+        </div>
+        <div>
+          <div class="text-4xl md:text-5xl font-black text-primary mb-2">500+</div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Tour Trải Nghiệm</p>
+        </div>
+        <div>
+          <div class="text-4xl md:text-5xl font-black text-primary mb-2">63</div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Tỉnh Thành Phủ Sóng</p>
+        </div>
+        <div>
+          <div class="text-4xl md:text-5xl font-black text-accent mb-2">4.9</div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Điểm Đánh Giá</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features / Why Choose Us -->
+  <section id="why-choose-us" class="py-24 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-sm font-black text-accent uppercase tracking-widest mb-3">Lý Do Chọn Chúng Tôi</h2>
+        <h3 class="text-3xl md:text-4xl font-bold text-slate-800">Trải Nghiệm Dịch Vụ Đẳng Cấp Xứng Tầm</h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-slate-100 group">
+          <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
+            <i data-lucide="map" class="w-8 h-8"></i>
           </div>
-          <div class="grid grid-cols-2 gap-4">
-             <div class="space-y-4 mt-12">
-               <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXngVHnGP0YLbtOI0-CRN6yhpFqhiUr2NhR4adG9ztdbeER0buZPejoTOrlH5gC_iqIjxos1YPC0ajXzUT5Fn4Q9LJjAFB3SZOf-BjpljQQro0qoCgAKJo1QD8ha5OJkoN3kKqUudaNVF8uQYnxLcNlEWI-AP8vv5J6NEuxwTQtIynO-S2FqSNMb-kKwmjwSnnxwMw1YLL1RHb6Mx3JZivHazN0Wkl1moa7ASOMKElMbHLMDkEYzb6MCFQSxorEMfeIIu3t08cDg" class="rounded-3xl h-64 w-full object-cover shadow-2xl" alt="Vietnam 1" />
-               <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP7wFZgrShp8jL0wHN_qNpOh36YkmEQyz4fMkXMk7FpB1L84SNSsVIZ_hUfj8FNXI4jxCj-qxIQTbRzC5InHFk4MtTAhGAZ-LBP-1qURsFMTR1NtTlVU1FLaXLS8RRvQBv6QHaO9pOGE5fGFLFPXcUfTh2gLFxN3GSpN1HdNHFLHdxzND2499BBG4tir36vYK6skoDz9Cy9xSw9dt-dlbpte19rOM2Pczjg_2plXCt01tuP2dvcfx8DQIqxTCYCRkF8uvdDp_40Q" class="rounded-3xl h-48 w-full object-cover shadow-2xl" alt="Vietnam 2" />
-             </div>
-             <div class="space-y-4">
-               <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLGMBh9fF_vlo9b8DDEF2Su93VN-kgvKh6VKzpeGuZziA8sZW69Rd80poEq4ysJT1xti1TlT6XnBAs80SXvjlzJqQh436JqRgI82jUluEIjxkU-oyFCewD5ZJ43D1qTLRvVvKoZxWd69niTw0aqsq_f8HkDhgEShld-Q6mBgi2BvsPxdfcdS85cmyfWBHYyxJoPbjTRWmOcn3BfddkRIf9a3LGiMu_xNElfNqeqWrXTRUQzqgCcHlxkitv8lPOnSM--Sqe0BhOng" class="rounded-3xl h-48 w-full object-cover shadow-2xl" alt="Vietnam 3" />
-               <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9kUcJPCQULWcuzkHNC1rjAQHfYBwb-SpUjMJ-SDMzaNCJfRZ6YRx0a3dgiQR3ntuKMOhreoJVIWXHUuCCPDNMweqhScTWdW-4irzhu2CTJvDs1oTzsUWhqvqRoaXPiNYolMRyRJHPjuI-kaMpkwdq1kB5IJmexZzE21R_OnNkkabuhVwGg4u9dZYFFX0lpGlTtkGfe9ixYk65B6lenogmY3izBLWftlvO7353RezoQkT3oy18s-xIk0TyX62QtPvhutgZbDNhSg" class="rounded-3xl h-64 w-full object-cover shadow-2xl" alt="Vietnam 4" />
-             </div>
+          <h4 class="text-xl font-bold text-slate-800 mb-3">Hành Trình Độc Bản</h4>
+          <p class="text-slate-500 leading-relaxed">Thiết kế tour cá nhân hóa, độc quyền không trùng lặp, đưa bạn đến những vùng đất hoang sơ và kỳ vĩ nhất Việt Nam.</p>
+        </div>
+        <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-slate-100 group">
+          <div class="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent mb-6 group-hover:scale-110 group-hover:bg-accent group-hover:text-white transition-all">
+            <i data-lucide="shield-check" class="w-8 h-8"></i>
           </div>
+          <h4 class="text-xl font-bold text-slate-800 mb-3">Bảo Đảm An Toàn</h4>
+          <p class="text-slate-500 leading-relaxed">Hệ thống bảo hiểm du lịch toàn diện 24/7. Hướng dẫn viên chuyên nghiệp được đào tạo chứng chỉ quốc tế.</p>
         </div>
-      </section>
-
-      <section class="bg-primary-dark py-20">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
-           <div class="space-y-2">
-              <div class="text-white text-6xl font-black italic">15<span class="text-accent">+</span></div>
-              <p class="text-white/60 font-bold uppercase tracking-widest text-sm">Năm kinh nghiệm</p>
-           </div>
-           <div class="space-y-2">
-              <div class="text-white text-6xl font-black italic">500<span class="text-accent">+</span></div>
-              <p class="text-white/60 font-bold uppercase tracking-widest text-sm">Tour độc bản</p>
-           </div>
-           <div class="space-y-2">
-              <div class="text-white text-6xl font-black italic">50k<span class="text-accent">+</span></div>
-              <p class="text-white/60 font-bold uppercase tracking-widest text-sm">Khách hàng</p>
-           </div>
-           <div class="space-y-2">
-              <div class="text-white text-6xl font-black italic">4.9<span class="text-accent text-3xl">/5</span></div>
-              <p class="text-white/60 font-bold uppercase tracking-widest text-sm">Hài lòng</p>
-           </div>
+        <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-slate-100 group">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+            <i data-lucide="badge-dollar-sign" class="w-8 h-8"></i>
+          </div>
+          <h4 class="text-xl font-bold text-slate-800 mb-3">Cam Kết Giá Tốt</h4>
+          <p class="text-slate-500 leading-relaxed">Không phát sinh phụ phí. Chúng tôi tự hào mang đến chất lượng dịch vụ 5 sao với mức giá ưu đãi nhất thị trường.</p>
         </div>
-      </section>
+      </div>
+    </div>
+  </section>
 
-      <section class="py-24 max-w-7xl mx-auto px-6">
-        <div class="flex justify-between items-end mb-12">
-            <div>
-                <h2 class="text-3xl md:text-4xl font-bold text-primary-dark mb-2">Tour nổi bật</h2>
-                <p class="text-slate-500 font-medium">Những hành trình được yêu thích nhất bởi khách hàng VietExplore</p>
+  <!-- Popular Tours -->
+  <section class="py-24 bg-white relative">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+        <div>
+          <h2 class="text-sm font-black text-accent uppercase tracking-widest mb-3">Hot Nhất Tuần Này</h2>
+          <h3 class="text-3xl md:text-4xl font-bold text-slate-800">Tour Được Yêu Thích Nhất</h3>
+        </div>
+        <a href="/Home/Tours" class="flex items-center gap-2 text-primary font-bold hover:text-primary-dark transition-colors px-6 py-3 rounded-xl bg-primary/5 hover:bg-primary/10 no-underline">
+          Khám phá thêm <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        @foreach (var tour in Model.PopularTours)
+        {
+          <a href="/Home/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative no-underline">
+            <button class="absolute top-4 right-4 z-20 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/40 transition-colors">
+              <i data-lucide="heart" class="w-5 h-5 text-white"></i>
+            </button>
+            <div class="relative h-64 overflow-hidden">
+              <img src="@tour.Images.FirstOrDefault()?.ImageUrl" alt="@tour.Title" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                <div class="flex items-center gap-1.5 text-white bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10">
+                  @if (tour.TotalReviews > 0)
+                  {
+                    <i data-lucide="star" class="w-4 h-4 fill-accent text-accent"></i>
+                    <span class="text-sm font-bold">@tour.Rating.ToString("0.0")</span>
+                  }
+                  else
+                  {
+                    <span class="text-xs font-bold tracking-wider">MỚI</span>
+                  }
+                </div>
+                <span class="bg-white text-primary text-xs font-black px-3 py-1.5 rounded-xl shadow-lg">@tour.Duration</span>
+              </div>
             </div>
-            <a href="/Home/Tours" class="hidden md:flex items-center gap-2 text-primary font-bold hover:text-primary-dark transition-colors no-underline">
-                Xem tất cả <i data-lucide="arrow-right" class="w-4 h-4"></i>
-            </a>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="flex items-center gap-2 text-slate-500 text-xs font-bold mb-3 uppercase tracking-wider">
+                <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>@tour.Destination?.Name
+              </div>
+              <h3 class="font-bold text-xl text-slate-800 mb-4 line-clamp-2 leading-snug group-hover:text-primary transition-colors">@tour.Title</h3>
+              <div class="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                  <div class="text-xs text-slate-400 font-medium mb-1">Trọn gói từ</div>
+                  <div class="font-black text-2xl text-accent">$@tour.Price</div>
+                </div>
+                <div class="bg-primary/5 text-primary w-12 h-12 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:text-white group-hover:scale-110 transition-all">
+                  <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </div>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Region / Destination Tabs -->
+  <section class="py-24 bg-slate-50 relative overflow-hidden">
+    <!-- Abstract background -->
+    <div class="absolute inset-0 opacity-20 pointer-events-none">
+      <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[150px] translate-y-1/3 -translate-x-1/3"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-sm font-black text-accent uppercase tracking-widest mb-3">Khám Phá Theo Vùng Miền</h2>
+        <h3 class="text-3xl md:text-5xl font-bold text-slate-800 mb-6">Điểm Đến Trong Mơ Của Bạn</h3>
+        <p class="text-slate-500 text-lg">Hàng trăm tọa độ du lịch hấp dẫn trải dài từ Bắc chí Nam đang chờ bạn bước tới.</p>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="flex flex-wrap justify-center gap-3 mb-12">
+        @for (int i = 0; i < Model.DestinationRegions.Count; i++)
+        {
+          var region = Model.DestinationRegions[i];
+          <button onclick="switchTab('region-@region.RegionId')" class="region-tab-btn px-6 py-3 rounded-full text-sm font-bold transition-all border border-slate-200 hover:border-primary @(i == 0 ? "bg-primary text-white shadow-lg border-primary" : "text-slate-500 hover:bg-white bg-white shadow-sm")" data-target="region-@region.RegionId">
+            @region.RegionName
+          </button>
+        }
+      </div>
+
+      <!-- Tab Contents -->
+      <div>
+        @for (int i = 0; i < Model.DestinationRegions.Count; i++)
+        {
+          var region = Model.DestinationRegions[i];
+          var destinations = region.Destinations.Take(7).ToList();
+          <div id="region-@region.RegionId" class="region-tab-content grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] gap-4 @(i == 0 ? "" : "hidden") animate-fade-in">
+            @for (int j = 0; j < destinations.Count; j++)
+            {
+              var destination = destinations[j];
+              string spanClass = "col-span-1 row-span-1";
+              if (j == 0) spanClass = "col-span-2 row-span-2 md:col-span-2 md:row-span-2";
+              else if (j == 1 || j == 2) spanClass = "col-span-1 row-span-1";
+              else if (j == 3) spanClass = "col-span-2 row-span-1 md:col-span-2 md:row-span-1";
+              else spanClass = "col-span-1 row-span-1";
+
+              var imgUrl = !string.IsNullOrEmpty(destination.ImageUrl) 
+                           ? destination.ImageUrl 
+                           : "https://images.unsplash.com/photo-1599839619722-39751411ea63";
+
+              <a href="/Home/Tours?destinationId=@destination.Id" class="group relative rounded-2xl overflow-hidden cursor-pointer block @spanClass">
+                <img src="@imgUrl" alt="@destination.Name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent group-hover:bg-primary/40 transition-colors duration-500"></div>
+                
+                <div class="absolute inset-0 flex flex-col justify-end p-6">
+                  <h4 class="text-white font-bold text-xl leading-tight group-hover:-translate-y-4 transition-transform duration-500">@destination.Name</h4>
+                  <p class="text-white/80 text-sm mt-1 opacity-100 group-hover:opacity-0 transition-opacity duration-300">@destination.TourDestinations.Count tours</p>
+                  
+                  <div class="absolute bottom-6 left-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 flex items-center gap-2 text-white font-bold">
+                    Khám Phá <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                  </div>
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Personalized Recommendations (If user has data) -->
+  @if (Model.RecommendedTours.Any())
+  {
+    <section class="py-24 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-sm font-black text-primary uppercase tracking-widest mb-3">Dành Riêng Cho Bạn</h2>
+          <h3 class="text-3xl md:text-4xl font-bold text-slate-800">Gợi Ý Được Cá Nhân Hóa</h3>
+          <p class="text-slate-500 mt-4">Hệ thống AI của chúng tôi phân tích sở thích của bạn để đưa ra những lịch trình hoàn hảo nhất.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            @foreach (var tour in Model)
-            {
-                <a href="/Home/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 relative no-underline">
-                    @if (!string.IsNullOrEmpty(tour.Badge))
-                    {
-                        <div class="absolute top-4 left-4 z-20 bg-accent text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                            @tour.Badge
-                        </div>
-                    }
-                    <div class="relative h-64 overflow-hidden">
-                        <img src="@tour.Images.FirstOrDefault()?.ImageUrl" alt="@tour.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                            <div class="flex items-center gap-1.5 text-white bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-lg">
-                                <i data-lucide="star" class="w-4 h-4 fill-accent text-accent"></i>
-                                <span class="font-bold text-sm">@tour.Rating</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6 flex-1 flex flex-col">
-                        <div class="flex items-center gap-2 text-slate-500 text-xs font-bold mb-3 uppercase tracking-wider">
-                            <i data-lucide="clock" class="w-4 h-4 text-primary"></i>
-                            @tour.Duration
-                        </div>
-                        <h3 class="font-bold text-xl text-slate-800 mb-4 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                            @tour.Title
-                        </h3>
-                        <div class="mt-auto pt-6 border-t border-slate-100 flex items-center justify-between">
-                            <div>
-                                <div class="text-xs text-slate-400 font-medium mb-1">Giá từ</div>
-                                <div class="font-black text-2xl text-primary-dark">
-                                    $@tour.Price<span class="text-sm text-slate-400 font-medium tracking-normal">/khách</span>
-                                </div>
-                            </div>
-                            <div class="bg-primary-light/30 text-primary w-12 h-12 rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            }
+          @foreach (var tour in Model.RecommendedTours.Take(3))
+          {
+            <a href="/Home/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 relative no-underline">
+              <div class="absolute top-4 left-4 z-20 px-3 py-1.5 bg-accent text-white text-xs font-black rounded-lg shadow-lg">GỢI Ý AI</div>
+              <div class="relative h-64 overflow-hidden">
+                <img src="@tour.Images.FirstOrDefault()?.ImageUrl" alt="@tour.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+              </div>
+              <div class="p-6 flex-1 flex flex-col">
+                <h3 class="font-bold text-xl text-slate-800 mb-2 line-clamp-2 leading-snug group-hover:text-primary transition-colors">@tour.Title</h3>
+                <p class="text-sm text-slate-500 mb-6">@tour.Duration • @tour.Destination?.Name</p>
+                <div class="mt-auto flex items-center justify-between">
+                  <div class="font-black text-2xl text-primary-dark">$@tour.Price</div>
+                  <div class="px-4 py-2 bg-primary/10 text-primary font-bold rounded-xl group-hover:bg-primary group-hover:text-white transition-all">Xem Tour</div>
+                </div>
+              </div>
+            </a>
+          }
         </div>
-      </section>
+      </div>
+    </section>
+  }
 
-      <section class="py-24 bg-slate-50 relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
-          <div class="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-green-100 rounded-full text-green-600 font-bold text-sm">
-            <i data-lucide="star" class="w-4 h-4 fill-green-600"></i>
-            Bắt đầu hành trình của bạn ngay hôm nay
-          </div>
-          <h2 class="text-4xl md:text-5xl font-bold text-primary-dark mb-8 leading-tight">
-            Sẵn sàng để Việt Nam kể cho bạn<br/>nghe những câu chuyện mới?
-          </h2>
-          <p class="text-lg text-slate-500 max-w-2xl mx-auto mb-12">
-            Mỗi chuyến đi là một chương mới trong cuộc đời. Hãy để các chuyên gia của VietnamVibe giúp bạn viết nên những kỷ niệm đẹp nhất bằng sự tận tâm và am hiểu địa phương sâu sắc.
-          </p>
-          <div class="flex flex-col sm:flex-row justify-center items-center gap-6">
-            <a href="tel:0901234567" class="no-underline w-full sm:w-auto bg-accent text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-xl shadow-accent/30 hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
-              <i data-lucide="phone" class="w-5 h-5"></i>
-              Liên hệ tư vấn miễn phí
-            </a>
-            <a href="/Home/Tours" class="no-underline w-full sm:w-auto bg-white text-primary border-2 border-slate-200 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-slate-100 transition-all flex items-center justify-center gap-3">
-              Khám phá các tour độc bản
-            </a>
-          </div>
-        </div>
-      </section>
+  <!-- Call To Action -->
+  <section class="py-24 relative overflow-hidden">
+    <div class="absolute inset-0 z-0">
+      <img src="https://images.unsplash.com/photo-1540206395-68808572332f" alt="Travel" class="w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-primary-dark/80 backdrop-blur-sm"></div>
+    </div>
+    <div class="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
+      <h2 class="text-4xl md:text-5xl font-black mb-6">Bạn Đã Sẵn Sàng Lên Đường?</h2>
+      <p class="text-xl text-white/80 mb-10">Đăng ký thành viên ngay hôm nay để nhận mã giảm giá lên đến $50 cho chuyến đi đầu tiên.</p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="/Home/Register" class="px-8 py-4 bg-accent text-white font-bold rounded-2xl hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,165,0,0.4)] text-lg no-underline">
+          Tạo Tài Khoản
+        </a>
+        <a href="/Home/Tours" class="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all text-lg no-underline">
+          Xem Tất Cả Tour
+        </a>
+      </div>
+    </div>
+  </section>
 </div>
+
+@section Scripts {
+<script>
+  function switchTab(tabId) {
+    // Hide all contents
+    document.querySelectorAll('.region-tab-content').forEach(el => {
+      el.classList.add('hidden');
+    });
+    // Reset all buttons
+    document.querySelectorAll('.region-tab-btn').forEach(btn => {
+      btn.classList.remove('bg-primary', 'text-white', 'shadow-lg', 'border-primary');
+      btn.classList.add('text-slate-500', 'bg-white', 'shadow-sm', 'border-slate-200');
+    });
+    
+    // Show selected content
+    document.getElementById(tabId).classList.remove('hidden');
+    // Highlight selected button
+    const activeBtn = document.querySelector(`button[data-target="${tabId}"]`);
+    activeBtn.classList.add('bg-primary', 'text-white', 'shadow-lg', 'border-primary');
+    activeBtn.classList.remove('text-slate-500', 'bg-white', 'shadow-sm', 'border-slate-200');
+  }
+</script>
+<style>
+  .animate-pulse-slow {
+    animation: pulse-slow 10s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @@keyframes pulse-slow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  @@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+}

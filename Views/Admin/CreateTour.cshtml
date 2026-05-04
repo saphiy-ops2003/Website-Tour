@@ -2,10 +2,11 @@
 @{
     ViewData["Title"] = "Thêm Tour Mới";
     Layout = "_AdminLayout";
+    var destinations = (List<WebsiteTour.Models.Entities.Destination>)ViewBag.Destinations;
 }
 
 <div class="max-w-3xl">
-    <form asp-action="CreateTour" method="post" class="space-y-6">
+    <form action="/Admin/CreateTour" method="post" enctype="multipart/form-data" class="space-y-8">
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
             <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                 <i data-lucide="map-plus" class="w-6 h-6 text-accent"></i> Thông tin Tour
@@ -23,43 +24,89 @@
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Giá người lớn ($) *</label>
                     <input name="Price" type="number" step="0.01" required placeholder="299" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
                 </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Thời gian *</label>
-                    <input name="Duration" required placeholder="2 Ngày 1 Đêm" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Danh mục *</label>
-                    <select name="CategoryId" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800">
-                        <option value="" disabled selected>Chọn danh mục...</option>
-                        @foreach (var c in (List<WebsiteTour.Models.Entities.Category>)ViewBag.Categories)
-                        {
-                            <option value="@c.Id">@c.Name</option>
-                        }
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Điểm đến *</label>
-                    <select name="DestinationId" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800">
-                        <option value="" disabled selected>Chọn điểm đến...</option>
-                        @foreach (var d in (List<WebsiteTour.Models.Entities.Destination>)ViewBag.Destinations)
-                        {
-                            <option value="@d.Id">@d.Name (@d.Region)</option>
-                        }
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Badge (nhãn)</label>
-                    <input name="Badge" placeholder="Ví dụ: Bán chạy, Mới" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Đánh giá (0–5)</label>
-                    <input name="Rating" type="number" step="0.1" min="0" max="5" value="4.5" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Số Ngày *</label>
+                        <input id="numberOfDays" name="Days" type="number" min="1" value="1" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Số Đêm *</label>
+                        <input name="Nights" type="number" min="0" value="0" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                    </div>
                 </div>
                 <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">URL Hình ảnh đại diện</label>
-                    <input name="imageUrl" type="url" placeholder="https://..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Điểm đến (chọn 1 hoặc nhiều) *</label>
+                        <a href="/Admin/Destinations" class="text-xs font-bold text-accent hover:underline">+ Thêm nơi đến</a>
+                    </div>
+                    @if (destinations.Any())
+                    {
+                        <input type="text" id="destinationSearch" placeholder="Tìm kiếm điểm đến (vd: Hà Nội)..." class="w-full px-3 py-2 mb-2 rounded-lg border border-slate-200 focus:border-accent outline-none text-sm" />
+                        <div id="destinationList" class="max-h-48 overflow-y-auto rounded-xl border border-slate-200 p-3 space-y-2">
+                            @foreach (var d in destinations.OrderBy(x => x.Region!.Name).ThenBy(x => x.Name))
+                            {
+                                <label class="flex items-center gap-3 text-sm text-slate-700 destination-item">
+                                    <input type="checkbox" name="destinationIds" value="@d.Id" class="rounded border-slate-300 text-accent focus:ring-accent" />
+                                    <span>@d.Name (@d.Region?.Name)</span>
+                                </label>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-sm font-medium">
+                            Chưa có điểm đến nào. Hãy vào mục "Vùng & Điểm đến" để thêm trước khi tạo tour.
+                        </div>
+                    }
+                </div>
+                <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Hình ảnh Tour (có thể chọn nhiều ảnh)</label>
+                    <input name="imageFiles" type="file" accept="image/*" multiple class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                    <p class="text-xs text-slate-400 mt-2">Giữ phím Ctrl (hoặc Cmd) để chọn nhiều ảnh cùng lúc. Ảnh đầu tiên sẽ được đặt làm ảnh đại diện chính.</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Itinerary Section -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i data-lucide="list-ordered" class="w-6 h-6 text-accent"></i> Lịch trình chi tiết
+            </h2>
+            <div class="mb-4">
+                <p class="text-sm text-slate-500 italic">Hệ thống tự động sinh số ngày dựa vào cấu hình Số Ngày ở trên. Bạn có thể thay đổi Số Ngày ở mục trên để tự động cập nhật số lượng lịch trình.</p>
+            </div>
+            <div id="itineraryContainer" class="space-y-6">
+                <!-- JS will render Day 1...N here -->
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-6 h-6 text-accent"></i> Ngày khởi hành (Schedule)
+                </h2>
+                <button type="button" onclick="addScheduleRow()" class="bg-accent/10 text-accent px-4 py-2 rounded-xl font-bold text-sm hover:bg-accent hover:text-white transition-all flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Thêm ngày khởi hành
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                            <th class="pb-4 pl-2">Ngày khởi hành</th>
+                            <th class="pb-4">Số chỗ</th>
+                            <th class="pb-4">Giá bán ($)</th>
+                            <th class="pb-4 w-10"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleContainer" class="divide-y divide-slate-50">
+                        <!-- JS will render schedule rows here -->
+                    </tbody>
+                </table>
+            </div>
+            <p id="scheduleEmptyMsg" class="text-center text-slate-400 py-8 italic text-sm">Chưa có ngày khởi hành nào. Nhấn nút để thêm.</p>
         </div>
 
         <div class="flex gap-4">
@@ -72,3 +119,122 @@
         </div>
     </form>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const numberOfDaysInput = document.getElementById('numberOfDays');
+            const itineraryContainer = document.getElementById('itineraryContainer');
+            const scheduleContainer = document.getElementById('scheduleContainer');
+            const scheduleEmptyMsg = document.getElementById('scheduleEmptyMsg');
+            let scheduleCount = 0;
+
+            // --- DESTINATION SEARCH LOGIC ---
+            const destSearch = document.getElementById('destinationSearch');
+            if (destSearch) {
+                destSearch.addEventListener('input', function(e) {
+                    const term = e.target.value.toLowerCase();
+                    document.querySelectorAll('.destination-item').forEach(label => {
+                        const text = label.textContent.toLowerCase();
+                        label.style.display = text.includes(term) ? 'flex' : 'none';
+                    });
+                });
+            }
+
+            // --- ITINERARY LOGIC ---
+            function renderItineraries() {
+                const days = parseInt(numberOfDaysInput.value) || 1;
+                const currentData = {};
+                
+                itineraryContainer.querySelectorAll('.day-block').forEach(block => {
+                    const idx = block.dataset.idx;
+                    currentData[idx] = {
+                        title: block.querySelector('input[name*=".Title"]').value,
+                        desc: block.querySelector('textarea[name*=".Description"]').value
+                    };
+                });
+
+                itineraryContainer.innerHTML = '';
+                for (let i = 1; i <= days; i++) {
+                    const idx = i - 1;
+                    const prev = currentData[idx] || { title: '', desc: '' };
+                    const dayHtml = `
+                        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 day-block" data-idx="${idx}">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <span class="bg-accent text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">Day ${i}</span>
+                                Ngày ${i}
+                            </h3>
+                            <input type="hidden" name="itineraries[${idx}].DayNumber" value="${i}" />
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Tiêu đề ngày</label>
+                                    <input name="itineraries[${idx}].Title" value="${prev.title}" required placeholder="Ví dụ: Đón khách và khởi hành" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-accent outline-none text-sm font-medium" />
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Nội dung chi tiết</label>
+                                    <textarea name="itineraries[${idx}].Description" rows="3" required placeholder="Mô tả các hoạt động trong ngày..." class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-accent outline-none text-sm font-medium resize-none">${prev.desc}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    itineraryContainer.insertAdjacentHTML('beforeend', dayHtml);
+                }
+            }
+
+            numberOfDaysInput.addEventListener('change', renderItineraries);
+            numberOfDaysInput.addEventListener('input', renderItineraries);
+            renderItineraries();
+
+            // --- SCHEDULE LOGIC ---
+            window.addScheduleRow = function() {
+                const idx = scheduleCount++;
+                const rowHtml = `
+                    <tr class="schedule-row group" data-idx="${idx}">
+                        <td class="py-4 pl-2">
+                            <input name="schedules[${idx}].StartDate" type="datetime-local" required class="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-accent outline-none" />
+                        </td>
+                        <td class="py-4">
+                            <input name="schedules[${idx}].TotalSeats" type="number" min="1" value="20" required class="w-24 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-accent outline-none" />
+                        </td>
+                        <td class="py-4">
+                            <input name="schedules[${idx}].Price" type="number" step="0.01" required placeholder="0.00" class="w-28 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-accent outline-none font-bold text-slate-800" />
+                        </td>
+                        <td class="py-4 text-right">
+                            <button type="button" onclick="removeScheduleRow(this)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                scheduleContainer.insertAdjacentHTML('beforeend', rowHtml);
+                lucide.createIcons();
+                updateScheduleVisibility();
+            };
+
+            window.removeScheduleRow = function(btn) {
+                btn.closest('tr').remove();
+                updateScheduleVisibility();
+                reIndexSchedules();
+            };
+
+            function updateScheduleVisibility() {
+                const rows = scheduleContainer.querySelectorAll('.schedule-row');
+                scheduleEmptyMsg.style.display = rows.length === 0 ? 'block' : 'none';
+            }
+
+            function reIndexSchedules() {
+                const rows = scheduleContainer.querySelectorAll('.schedule-row');
+                rows.forEach((row, i) => {
+                    row.querySelector('input[name*=".StartDate"]').name = `schedules[${i}].StartDate`;
+                    row.querySelector('input[name*=".TotalSeats"]').name = `schedules[${i}].TotalSeats`;
+                    row.querySelector('input[name*=".Price"]').name = `schedules[${i}].Price`;
+                    row.dataset.idx = i;
+                });
+                scheduleCount = rows.length;
+            }
+
+            // Initial row
+            addScheduleRow();
+        });
+    </script>
+}

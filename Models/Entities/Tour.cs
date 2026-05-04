@@ -10,8 +10,11 @@ namespace WebsiteTour.Models.Entities
             public string Description { get; set; } = string.Empty;
             public decimal Price { get; set; }
             public string Duration { get; set; } = string.Empty;
-            public string? Badge { get; set; }
+            public int Days { get; set; }
+            public int Nights { get; set; }
             public double Rating { get; set; }
+            public int TotalReviews { get; set; }
+            public bool IsDeleted { get; set; } = false;
             public int CategoryId { get; set; }
             public Category? Category { get; set; }
             public int DestinationId { get; set; }
@@ -22,5 +25,6 @@ namespace WebsiteTour.Models.Entities
             public ICollection<Deal> Deals { get; set; } = new List<Deal>();
             public ICollection<Itinerary> Itineraries { get; set; } = new List<Itinerary>();
             public ICollection<TourSchedule> Schedules { get; set; } = new List<TourSchedule>();
+            public ICollection<TourDestination> TourDestinations { get; set; } = new List<TourDestination>();
     }
 }

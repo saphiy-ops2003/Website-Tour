@@ -81,8 +81,10 @@
                                         $@booking.TotalPrice
                                     </div>
                                 </div>
-                                <div class="flex justify-end items-center">
-                                    <button class="text-sm font-bold text-primary hover:text-primary-dark hover:underline transition-all">Chi tiết</button>
+                                <div class="flex justify-end items-center col-span-2 md:col-span-1">
+                                    <a href="/Home/Ticket/@booking.Id" target="_blank" class="inline-flex items-center gap-2 text-xs font-bold bg-primary/10 text-primary px-4 py-2.5 rounded-xl hover:bg-primary hover:text-white transition-all no-underline w-full md:w-auto justify-center shadow-sm">
+                                        <i data-lucide="ticket" class="w-4 h-4"></i> Lấy Vé (PDF)
+                                    </a>
                                 </div>
                             </div>
                         </div>

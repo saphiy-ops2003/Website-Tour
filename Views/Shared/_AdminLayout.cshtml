@@ -41,6 +41,14 @@
             <a href="/Admin/Tours" class="@(ViewContext.RouteData.Values["Action"]?.ToString() is "Tours" or "CreateTour" or "EditTour" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
                 <i data-lucide="map" class="w-5 h-5"></i> Danh sách Tour
             </a>
+
+            <a href="/Admin/Destinations" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Destinations" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                <i data-lucide="map-pin" class="w-5 h-5"></i> Vùng & Điểm đến
+            </a>
+
+            <a href="/Admin/Regions" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Regions" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+                <i data-lucide="layers" class="w-5 h-5"></i> Vùng
+            </a>
             
             <a href="/Admin/Promos" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Promos" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
                 <i data-lucide="percent" class="w-5 h-5"></i> Mã Giảm Giá

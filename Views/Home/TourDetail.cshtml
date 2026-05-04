@@ -19,18 +19,19 @@
         <div class="mb-8">
             <div class="flex justify-between items-start gap-4">
                 <div>
-                    @if (!string.IsNullOrEmpty(Model.Badge))
-                    {
-                        <span class="inline-block bg-accent/10 text-accent font-bold px-3 py-1 rounded-full text-xs mb-4">
-                            @Model.Badge
-                        </span>
-                    }
                     <h1 class="text-4xl font-black text-slate-800 leading-tight mb-4">@Model.Title</h1>
                     <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-slate-600">
                         <div class="flex items-center gap-1.5 text-accent">
-                            <i data-lucide="star" class="w-5 h-5 fill-accent"></i>
-                            <span class="text-lg">@Model.Rating</span>
-                            <span class="text-slate-400 font-medium text-sm">(124 đánh giá)</span>
+                            @if (Model.TotalReviews > 0)
+                            {
+                                <i data-lucide="star" class="w-5 h-5 fill-accent"></i>
+                                <span class="text-lg">@Model.Rating.ToString("0.0")</span>
+                                <span class="text-slate-400 font-medium text-sm">(@Model.TotalReviews đánh giá)</span>
+                            }
+                            else
+                            {
+                                <span class="text-slate-400 font-bold uppercase tracking-wider text-xs">Chưa có đánh giá</span>
+                            }
                         </div>
                         <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
                         <div class="flex items-center gap-1.5">
@@ -56,18 +57,67 @@
         </div>
 
         <!-- Image Gallery -->
-        <div class="grid grid-cols-4 grid-rows-2 gap-4 h-[500px] mb-12 rounded-3xl overflow-hidden shadow-xl">
-            <div class="col-span-2 row-span-2 relative group cursor-pointer">
-                <img src="@Model.Images.FirstOrDefault()?.ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+        @if (Model.Images != null && Model.Images.Any())
+        {
+            var images = Model.Images.ToList();
+            var count = images.Count;
+
+            <div class="grid @(count == 1 ? "grid-cols-1" : count == 2 ? "grid-cols-2" : count == 3 ? "grid-cols-3" : "grid-cols-4") grid-rows-2 gap-2 md:gap-4 h-[300px] md:h-[500px] mb-12 rounded-3xl overflow-hidden shadow-xl">
+                @if (count == 1)
+                {
+                    <div class="col-span-1 row-span-2 relative group cursor-pointer">
+                        <img src="@images[0].ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                }
+                else if (count == 2)
+                {
+                    <div class="col-span-1 row-span-2 relative group cursor-pointer">
+                        <img src="@images[0].ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    <div class="col-span-1 row-span-2 relative group cursor-pointer">
+                        <img src="@images[1].ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                }
+                else if (count == 3)
+                {
+                    <div class="col-span-2 row-span-2 relative group cursor-pointer">
+                        <img src="@images[0].ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    <div class="col-span-1 row-span-1 relative group cursor-pointer">
+                        <img src="@images[1].ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    <div class="col-span-1 row-span-1 relative group cursor-pointer">
+                        <img src="@images[2].ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-span-2 row-span-2 relative group cursor-pointer">
+                        <img src="@images[0].ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    @for (int i = 1; i < Math.Min(5, count); i++)
+                    {
+                        <div class="relative group cursor-pointer">
+                            <img src="@images[i].ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                            @if (i == 4 && count > 5)
+                            {
+                                <div class="absolute inset-0 bg-black/50 group-hover:bg-black/60 flex items-center justify-center transition-colors">
+                                    <span class="text-white text-3xl font-black">+@(count - 5)</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
             </div>
-            @foreach (var img in Model.Images.Skip(1).Take(4))
-            {
-                <div class="relative group cursor-pointer">
-                    <img src="@img.ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                </div>
-            }
-        </div>
+        }
 
         <!-- Main Content & Sidebar -->
         <div class="flex flex-col lg:flex-row gap-10">
@@ -130,7 +180,7 @@
                     @if (Model.Itineraries != null && Model.Itineraries.Any())
                     {
                         <div class="space-y-6 relative before:absolute before:inset-y-0 before:left-7 before:w-0.5 before:bg-slate-200">
-                            @foreach (var item in Model.Itineraries)
+                            @foreach (var item in Model.Itineraries.GroupBy(i => i.DayNumber).Select(g => g.First()).OrderBy(i => i.DayNumber))
                             {
                                 <div class="relative flex gap-6">
                                     <div class="w-14 h-14 rounded-2xl bg-accent/10 text-accent flex flex-col items-center justify-center flex-shrink-0 font-bold border border-accent/20 relative z-10 shadow-sm backdrop-blur-xl">
@@ -190,7 +240,7 @@
                                         {
                                             if(schedule.AvailableSeats > 0)
                                             {
-                                                <option value="@schedule.Id">@schedule.StartDate.ToString("dd/MM/yyyy") - Còn @schedule.AvailableSeats chỗ</option>
+                                                <option value="@schedule.Id" data-price="@schedule.Price">@schedule.StartDate.ToString("dd/MM/yyyy") - Còn @schedule.AvailableSeats chỗ - $@schedule.Price</option>
                                             }
                                             else
                                             {
@@ -289,8 +339,8 @@
 
 @section Scripts {
     <script>
-        const priceAdult = @Model.Price;
-        const priceChild = @(Model.Price * 0.7m); // 70% of adult price
+        let priceAdult = @Model.Price;
+        let priceChild = @(Model.Price * 0.7m); 
         const serviceFee = 10;
         
         let adults = 2;
@@ -396,6 +446,52 @@
             document.getElementById('totalAdult').innerText = '$' + tAdult.toFixed(0);
             document.getElementById('totalChild').innerText = '$' + tChild.toFixed(0);
             document.getElementById('finalTotal').innerText = '$' + Math.max(0, final).toFixed(0);
+        }
+
+        // --- Handle Itinerary Date Mapping ---
+        const scheduleSelect = document.querySelector('select[name="scheduleId"]');
+        const itineraryDates = document.querySelectorAll('.itinerary-date');
+
+        function updateItineraryDates() {
+            const selectedOption = scheduleSelect.options[scheduleSelect.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                // Update Prices based on schedule
+                const newPrice = parseFloat(selectedOption.dataset.price);
+                if (!isNaN(newPrice)) {
+                    priceAdult = newPrice;
+                    priceChild = newPrice * 0.7;
+                    
+                    // Update display prices in the breakdown
+                    document.querySelector('.text-3xl.font-black.text-primary-dark').innerText = '$' + newPrice;
+                    document.getElementById('displayAdult').previousElementSibling.innerText = `Người lớn ($${newPrice.toFixed(0)}) x `;
+                    document.getElementById('displayChild').previousElementSibling.innerText = `Trẻ em ($${(newPrice * 0.7).toFixed(0)}) x `;
+                }
+
+                // Parse date from text "dd/MM/yyyy - ..."
+                const dateStr = selectedOption.text.split(' - ')[0];
+                const [day, month, year] = dateStr.split('/').map(Number);
+                const startDate = new Date(year, month - 1, day);
+
+                itineraryDates.forEach(el => {
+                    const dayNum = parseInt(el.dataset.day);
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + (dayNum - 1));
+                    
+                    // Format to dd/MM
+                    const d = String(currentDate.getDate()).padStart(2, '0');
+                    const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+                    el.innerText = `${d}/${m}`;
+                });
+            } else {
+                itineraryDates.forEach(el => el.innerText = '');
+            }
+            updateTotals();
+        }
+
+        if (scheduleSelect) {
+            scheduleSelect.addEventListener('change', updateItineraryDates);
+            // If already selected (browser refresh)
+            updateItineraryDates();
         }
     </script>
 }

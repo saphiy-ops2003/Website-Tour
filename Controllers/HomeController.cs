@@ -7,29 +7,207 @@ using Microsoft.EntityFrameworkCore;
 using WebsiteTour.Models;
 using WebsiteTour.Models.Entities;
 using WebsiteTour.Models.ViewModels;
+using WebsiteTour.Services;
 
 namespace WebsiteTour.Controllers;
 
-public class HomeController : Controller
+    // Controller for public-facing website pages and user actions
+    public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly AppDbContext _context;
+    private readonly IRecommendationClient _recommendationClient;
 
-    public HomeController(ILogger<HomeController> logger, AppDbContext context)
+    public HomeController(
+        ILogger<HomeController> logger,
+        AppDbContext context,
+        IRecommendationClient recommendationClient
+    )
     {
         _logger = logger;
         _context = context;
+        _recommendationClient = recommendationClient;
     }
 
     public async Task<IActionResult> Index()
     {
-        var featuredTours = await _context.Tours
-            .Include(t => t.Images)
-            .OrderByDescending(t => t.Rating)
-            .Take(3)
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        int.TryParse(userIdStr, out int userId);
+
+        int? selectedRegionId = null;
+        if (int.TryParse(Request.Query["regionId"], out int regionId))
+        {
+            selectedRegionId = regionId;
+        }
+
+        var destinationRegions = await BuildDestinationByRegionAsync();
+        selectedRegionId ??= destinationRegions.FirstOrDefault()?.RegionId;
+        var model = new HomeIndexViewModel
+        {
+            RecommendedTours = await BuildHomeRecommendationsAsync(userId, 6),
+            PopularTours = await BuildPopularToursAsync(6),
+            DestinationRegions = destinationRegions,
+            SelectedRegionId = selectedRegionId
+        };
+
+        return View(model);
+    }
+
+    private async Task<List<Tour>> BuildHomeRecommendationsAsync(int userId, int topN)
+    {
+        if (userId <= 0)
+        {
+            return await _context.Tours
+                .Where(t => !t.IsDeleted)
+                .Include(t => t.Images)
+                .Include(t => t.Destination)
+                .OrderByDescending(t => t.Bookings.Count)
+                .ThenByDescending(t => t.Rating)
+                .AsSplitQuery()
+                .Take(topN)
+                .ToListAsync();
+        }
+
+        var bookedTourIds = await _context.Bookings
+            .Where(b => b.UserId == userId)
+            .Select(b => b.TourId)
+            .Distinct()
             .ToListAsync();
-            
-        return View(featuredTours);
+
+        var reviewedTourIds = await _context.Reviews
+            .Where(r => r.UserId == userId)
+            .Select(r => r.TourId)
+            .Distinct()
+            .ToListAsync();
+
+        var interactedTourIds = bookedTourIds
+            .Concat(reviewedTourIds)
+            .Distinct()
+            .ToList();
+
+        var behaviorSignals = await _context.UserTourBehaviors
+            .Where(ub => ub.UserId == userId)
+            .GroupBy(ub => ub.TourId)
+            .Select(g => new { TourId = g.Key, Weight = g.Sum(x => x.Weight) })
+            .ToListAsync();
+        var behaviorTourIds = behaviorSignals.Select(x => x.TourId).ToList();
+
+        interactedTourIds = interactedTourIds.Concat(behaviorTourIds).Distinct().ToList();
+
+        if (interactedTourIds.Count == 0)
+        {
+            return await _context.Tours
+                .Where(t => !t.IsDeleted)
+                .Include(t => t.Images)
+                .Include(t => t.Destination)
+                .OrderByDescending(t => t.Bookings.Count)
+                .ThenByDescending(t => t.Rating)
+                .AsSplitQuery()
+                .Take(topN)
+                .ToListAsync();
+        }
+
+        var preferredCategoryIds = await _context.Tours
+            .Where(t => interactedTourIds.Contains(t.Id))
+            .GroupBy(t => t.CategoryId)
+            .Select(g => g.Key)
+            .ToListAsync();
+
+        var preferredDestinationIds = await _context.Tours
+            .Where(t => interactedTourIds.Contains(t.Id))
+            .SelectMany(t => t.TourDestinations.Select(td => td.DestinationId))
+            .Distinct()
+            .ToListAsync();
+
+        var candidates = await _context.Tours
+            .Where(t => !t.IsDeleted)
+            .Include(t => t.Images)
+            .Include(t => t.Destination)
+            .Include(t => t.TourDestinations)
+            .ThenInclude(td => td.Destination)
+            .Where(t => !interactedTourIds.Contains(t.Id))
+            .AsSplitQuery()
+            .ToListAsync();
+
+        var bookingCounts = await _context.Bookings
+            .GroupBy(b => b.TourId)
+            .Select(g => new { TourId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.TourId, x => x.Count);
+
+        var scored = candidates
+            .Select(t => new
+            {
+                Tour = t,
+                Score =
+                    (preferredCategoryIds.Contains(t.CategoryId) ? 2.0 : 0.0) +
+                    (t.TourDestinations.Any(td => preferredDestinationIds.Contains(td.DestinationId)) ? 2.0 : 0.0) +
+                    t.Rating * 0.5 +
+                    (bookingCounts.TryGetValue(t.Id, out var cnt) ? cnt : 0) * 0.1
+            })
+            .OrderByDescending(x => x.Score)
+            .Select(x => x.Tour)
+            .Take(topN)
+            .ToList();
+
+        if (scored.Count < topN)
+        {
+            var missing = topN - scored.Count;
+            var fallback = await _context.Tours
+                .Where(t => !t.IsDeleted)
+                .Include(t => t.Images)
+                .Include(t => t.Destination)
+                .Include(t => t.TourDestinations)
+                .ThenInclude(td => td.Destination)
+                .Where(t => !scored.Select(s => s.Id).Contains(t.Id))
+                .OrderByDescending(t => t.Bookings.Count)
+                .ThenByDescending(t => t.Rating)
+                .AsSplitQuery()
+                .Take(missing)
+                .ToListAsync();
+            scored.AddRange(fallback);
+        }
+
+        return scored;
+    }
+
+    private async Task<List<Tour>> BuildPopularToursAsync(int topN)
+    {
+        return await _context.Tours
+            .Where(t => !t.IsDeleted)
+            .Include(t => t.Images)
+            .Include(t => t.Destination)
+            .Include(t => t.TourDestinations)
+            .ThenInclude(td => td.Destination)
+            .OrderByDescending(t => t.Bookings.Count)
+            .ThenByDescending(t => t.Rating)
+            .AsSplitQuery()
+            .Take(topN)
+            .ToListAsync();
+    }
+
+    private async Task<List<DestinationRegionGroupViewModel>> BuildDestinationByRegionAsync()
+    {
+        var regions = await _context.Regions
+            .Include(r => r.Destinations)
+            .ThenInclude(d => d.TourDestinations.Where(td => !td.Tour.IsDeleted))
+            .ThenInclude(td => td.Tour)
+            .ThenInclude(t => t!.Bookings)
+            .AsSplitQuery()
+            .ToListAsync();
+
+        return regions
+            .Select(r => new DestinationRegionGroupViewModel
+            {
+                RegionId = r.Id,
+                RegionName = r.Name,
+                RegionSlug = r.Slug,
+                Destinations = r.Destinations
+                    .OrderByDescending(d => d.TourDestinations.Sum(td => td.Tour?.Bookings.Count ?? 0))
+                    .ThenBy(d => d.Name)
+                    .ToList()
+            })
+            .OrderBy(g => g.RegionName)
+            .ToList();
     }
 
     [Authorize]
@@ -62,7 +240,7 @@ public class HomeController : Controller
         // Change password if provided
         if (!string.IsNullOrEmpty(model.NewPassword))
         {
-            if (model.CurrentPassword != user.PasswordHash)
+            if (!PasswordHasher.VerifyPassword(model.CurrentPassword ?? string.Empty, user.PasswordHash))
             {
                 TempData["ErrorMessage"] = "Mật khẩu hiện tại không đúng.";
                 ModelState.AddModelError("CurrentPassword", "Mật khẩu hiện tại không đúng.");
@@ -74,7 +252,7 @@ public class HomeController : Controller
                 ModelState.AddModelError("ConfirmNewPassword", "Mật khẩu xác nhận không khớp.");
                 return View(model);
             }
-            user.PasswordHash = model.NewPassword;
+            user.PasswordHash = PasswordHasher.HashPassword(model.NewPassword);
         }
 
         await _context.SaveChangesAsync();
@@ -83,24 +261,81 @@ public class HomeController : Controller
         return RedirectToAction("Profile");
     }
 
-    public async Task<IActionResult> Tours()
+    public async Task<IActionResult> Tours(int? regionId = null, int? destinationId = null, decimal? maxPrice = null, int? duration = null, string sortBy = "popular", int page = 1)
     {
-        var tours = await _context.Tours
+        var query = _context.Tours
+            .Where(t => !t.IsDeleted)
             .Include(t => t.Images)
             .Include(t => t.Destination)
-            .ToListAsync();
-            
+            .AsQueryable();
+
+        if (destinationId.HasValue)
+        {
+            query = query.Where(t => t.TourDestinations.Any(td => td.DestinationId == destinationId.Value));
+            var destination = await _context.Destinations.FirstOrDefaultAsync(d => d.Id == destinationId.Value);
+            if (destination != null) ViewBag.FilterDestination = destination.Name;
+        }
+
+        if (regionId.HasValue)
+        {
+            query = query.Where(t => t.TourDestinations.Any(td => td.Destination != null && td.Destination.RegionId == regionId.Value));
+        }
+
+        if (maxPrice.HasValue && maxPrice.Value > 0)
+        {
+            query = query.Where(t => t.Price <= maxPrice.Value);
+        }
+
+        if (duration.HasValue)
+        {
+            if (duration == 1) query = query.Where(t => t.Days >= 1 && t.Days <= 3);
+            else if (duration == 2) query = query.Where(t => t.Days >= 4 && t.Days <= 7);
+            else if (duration == 3) query = query.Where(t => t.Days > 7);
+        }
+
+        switch (sortBy)
+        {
+            case "price_asc":
+                query = query.OrderBy(t => t.Price);
+                break;
+            case "price_desc":
+                query = query.OrderByDescending(t => t.Price);
+                break;
+            case "popular":
+            default:
+                query = query.OrderByDescending(t => t.Bookings.Count).ThenByDescending(t => t.Rating);
+                break;
+        }
+
+        int pageSize = 9;
+        int totalItems = await query.CountAsync();
+        int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+        page = Math.Max(1, Math.Min(page, totalPages > 0 ? totalPages : 1));
+
+        var tours = await query.Skip((page - 1) * pageSize).Take(pageSize).AsSplitQuery().ToListAsync();
+
+        ViewBag.Regions = await _context.Regions.OrderBy(r => r.Name).ToListAsync();
+        ViewBag.CurrentRegion = regionId;
+        ViewBag.MaxPrice = maxPrice;
+        ViewBag.CurrentDuration = duration;
+        ViewBag.SortBy = sortBy;
+        ViewBag.CurrentPage = page;
+        ViewBag.TotalPages = totalPages;
+        ViewBag.TotalItems = totalItems;
+
         return View(tours);
     }
 
     public async Task<IActionResult> TourDetail(int id)
     {
         var tour = await _context.Tours
+            .Where(t => !t.IsDeleted)
             .Include(t => t.Images)
             .Include(t => t.Destination)
             .Include(t => t.Category)
             .Include(t => t.Itineraries.OrderBy(i => i.DayNumber))
             .Include(t => t.Schedules.Where(s => s.StartDate > DateTime.Now).OrderBy(s => s.StartDate))
+            .AsSplitQuery()
             .FirstOrDefaultAsync(t => t.Id == id);
 
         if (tour == null)
@@ -119,6 +354,12 @@ public class HomeController : Controller
         else
         {
             ViewBag.SavedPromos = new List<PromoCode>();
+        }
+
+        var userIdForTrackingStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(userIdForTrackingStr, out int trackedUserId))
+        {
+            await TrackUserBehaviorAsync(trackedUserId, id, "view", 1.0);
         }
 
         return View(tour);
@@ -195,8 +436,7 @@ public class HomeController : Controller
             {
                 Username = model.Username,
                 Email = model.Email,
-                // In production, use proper password hashing
-                PasswordHash = model.Password, 
+                PasswordHash = PasswordHasher.HashPassword(model.Password),
                 RoleId = role.Id
             };
 
@@ -222,9 +462,9 @@ public class HomeController : Controller
         {
             var user = await _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => (u.Email == model.EmailOrUsername || u.Username == model.EmailOrUsername) && u.PasswordHash == model.Password);
+                .FirstOrDefaultAsync(u => u.Email == model.EmailOrUsername || u.Username == model.EmailOrUsername);
 
-            if (user != null)
+            if (user != null && PasswordHasher.VerifyPassword(model.Password, user.PasswordHash))
             {
                 var claims = new List<Claim>
                 {
@@ -378,6 +618,7 @@ public class HomeController : Controller
 
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
+        await TrackUserBehaviorAsync(userId, tour.Id, "booking", 5.0);
 
         TempData["SuccessMessage"] = "Đặt Tour thành công! Cảm ơn bạn.";
         return RedirectToAction("Bookings");
@@ -397,6 +638,72 @@ public class HomeController : Controller
             .ToListAsync();
 
         return View(bookings);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> Ticket(int id)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+
+        var booking = await _context.Bookings
+            .Include(b => b.Tour)
+            .Include(b => b.Tour.Destination)
+            .Include(b => b.TourSchedule)
+            .FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
+
+        if (booking == null) return NotFound();
+
+        return View(booking);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> RecommendedTours(int topN = 6, CancellationToken cancellationToken = default)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+        var recommendedIds = await _recommendationClient.GetRecommendedTourIdsAsync(userId, topN, cancellationToken);
+
+        List<Tour> tours;
+        if (recommendedIds.Count > 0)
+        {
+            tours = await _context.Tours
+                .Where(t => recommendedIds.Contains(t.Id) && !t.IsDeleted)
+                .Include(t => t.Images)
+                .Include(t => t.Destination)
+                .ToListAsync(cancellationToken);
+
+            var rankMap = recommendedIds
+                .Select((id, index) => new { id, index })
+                .ToDictionary(x => x.id, x => x.index);
+            tours = tours.OrderBy(t => rankMap.TryGetValue(t.Id, out var rank) ? rank : int.MaxValue).ToList();
+            ViewBag.RecommendationSource = "ai";
+        }
+        else
+        {
+            tours = await _context.Tours
+                .Where(t => !t.IsDeleted)
+                .Include(t => t.Images)
+                .Include(t => t.Destination)
+                .OrderByDescending(t => t.Bookings.Count)
+                .ThenByDescending(t => t.Rating)
+                .Take(topN)
+                .ToListAsync(cancellationToken);
+            ViewBag.RecommendationSource = "fallback";
+        }
+
+        return View(tours);
+    }
+
+    private async Task TrackUserBehaviorAsync(int userId, int tourId, string behaviorType, double weight)
+    {
+        _context.UserTourBehaviors.Add(new UserTourBehavior
+        {
+            UserId = userId,
+            TourId = tourId,
+            BehaviorType = behaviorType,
+            Weight = weight,
+            CreatedAt = DateTime.UtcNow
+        });
+        await _context.SaveChangesAsync();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

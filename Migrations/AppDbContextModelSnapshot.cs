@@ -153,15 +153,30 @@ namespace WebsiteTour.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Region")
+                    b.Property<int>("RegionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RegionId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
                     b.ToTable("Destinations");
                 });
@@ -269,6 +284,30 @@ namespace WebsiteTour.Migrations
                     b.ToTable("PromoCodes");
                 });
 
+            modelBuilder.Entity("WebsiteTour.Models.Entities.Region", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Regions");
+                });
+
             modelBuilder.Entity("WebsiteTour.Models.Entities.Review", b =>
                 {
                     b.Property<int>("Id")
@@ -327,10 +366,10 @@ namespace WebsiteTour.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Badge")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Days")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -344,6 +383,12 @@ namespace WebsiteTour.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Nights")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -354,6 +399,9 @@ namespace WebsiteTour.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TotalReviews")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
@@ -361,6 +409,21 @@ namespace WebsiteTour.Migrations
                     b.HasIndex("DestinationId");
 
                     b.ToTable("Tours");
+                });
+
+            modelBuilder.Entity("WebsiteTour.Models.Entities.TourDestination", b =>
+                {
+                    b.Property<int>("TourId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DestinationId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TourId", "DestinationId");
+
+                    b.HasIndex("DestinationId");
+
+                    b.ToTable("TourDestinations");
                 });
 
             modelBuilder.Entity("WebsiteTour.Models.Entities.TourImage", b =>
@@ -398,6 +461,9 @@ namespace WebsiteTour.Migrations
 
                     b.Property<int>("AvailableSeats")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -474,6 +540,39 @@ namespace WebsiteTour.Migrations
                     b.ToTable("UserPromoCodes");
                 });
 
+            modelBuilder.Entity("WebsiteTour.Models.Entities.UserTourBehavior", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BehaviorType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TourId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Weight")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TourId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.ToTable("UserTourBehaviors");
+                });
+
             modelBuilder.Entity("WebsiteTour.Models.Entities.Booking", b =>
                 {
                     b.HasOne("WebsiteTour.Models.Entities.Tour", "Tour")
@@ -519,6 +618,17 @@ namespace WebsiteTour.Migrations
                         .IsRequired();
 
                     b.Navigation("Tour");
+                });
+
+            modelBuilder.Entity("WebsiteTour.Models.Entities.Destination", b =>
+                {
+                    b.HasOne("WebsiteTour.Models.Entities.Region", "Region")
+                        .WithMany("Destinations")
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Region");
                 });
 
             modelBuilder.Entity("WebsiteTour.Models.Entities.Itinerary", b =>
@@ -581,6 +691,25 @@ namespace WebsiteTour.Migrations
                     b.Navigation("Destination");
                 });
 
+            modelBuilder.Entity("WebsiteTour.Models.Entities.TourDestination", b =>
+                {
+                    b.HasOne("WebsiteTour.Models.Entities.Destination", "Destination")
+                        .WithMany("TourDestinations")
+                        .HasForeignKey("DestinationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("WebsiteTour.Models.Entities.Tour", "Tour")
+                        .WithMany("TourDestinations")
+                        .HasForeignKey("TourId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Destination");
+
+                    b.Navigation("Tour");
+                });
+
             modelBuilder.Entity("WebsiteTour.Models.Entities.TourImage", b =>
                 {
                     b.HasOne("WebsiteTour.Models.Entities.Tour", "Tour")
@@ -633,6 +762,25 @@ namespace WebsiteTour.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebsiteTour.Models.Entities.UserTourBehavior", b =>
+                {
+                    b.HasOne("WebsiteTour.Models.Entities.Tour", "Tour")
+                        .WithMany()
+                        .HasForeignKey("TourId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebsiteTour.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tour");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebsiteTour.Models.Entities.Booking", b =>
                 {
                     b.Navigation("BookingDetails");
@@ -647,12 +795,19 @@ namespace WebsiteTour.Migrations
 
             modelBuilder.Entity("WebsiteTour.Models.Entities.Destination", b =>
                 {
+                    b.Navigation("TourDestinations");
+
                     b.Navigation("Tours");
                 });
 
             modelBuilder.Entity("WebsiteTour.Models.Entities.PromoCode", b =>
                 {
                     b.Navigation("UserPromoCodes");
+                });
+
+            modelBuilder.Entity("WebsiteTour.Models.Entities.Region", b =>
+                {
+                    b.Navigation("Destinations");
                 });
 
             modelBuilder.Entity("WebsiteTour.Models.Entities.Role", b =>
@@ -673,6 +828,8 @@ namespace WebsiteTour.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("Schedules");
+
+                    b.Navigation("TourDestinations");
                 });
 
             modelBuilder.Entity("WebsiteTour.Models.Entities.User", b =>

@@ -11,5 +11,6 @@ namespace WebsiteTour.Models.Entities
         public DateTime StartDate { get; set; }
         public int TotalSeats { get; set; }
         public int AvailableSeats { get; set; }
+        public decimal Price { get; set; }
     }
 }

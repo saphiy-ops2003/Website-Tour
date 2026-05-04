@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebsiteTour.Models;
+using WebsiteTour.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,14 @@ builder.Services.AddAuthentication("CookieAuth")
         options.AccessDeniedPath = "/Home/Login";
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
     });
+
+builder.Services.AddHttpClient<IRecommendationClient, RecommendationClient>((serviceProvider, client) =>
+{
+    var config = serviceProvider.GetRequiredService<IConfiguration>();
+    var baseUrl = config["Recommendation:ApiBaseUrl"] ?? "http://127.0.0.1:8000/";
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(2);
+});
 
 var app = builder.Build();
 
@@ -52,21 +61,62 @@ using (var scope = app.Services.CreateScope())
         if (!context.Tours.Any())
         {
             var category = new WebsiteTour.Models.Entities.Category { Name = "Khám phá" };
-            var destination = new WebsiteTour.Models.Entities.Destination { Name = "Hạ Long", Region = "Miền Bắc" };
-            var destination2 = new WebsiteTour.Models.Entities.Destination { Name = "Sapa", Region = "Miền Bắc" };
+            var regionNorth = context.Regions.FirstOrDefault(r => r.Slug == "mien-bac")
+                              ?? new WebsiteTour.Models.Entities.Region { Name = "Miền Bắc", Slug = "mien-bac" };
+            if (regionNorth.Id == 0)
+            {
+                context.Regions.Add(regionNorth);
+                context.SaveChanges();
+            }
+
+            var destination = new WebsiteTour.Models.Entities.Destination
+            {
+                Name = "Hạ Long",
+                Slug = "ha-long",
+                Description = "Vịnh biển với cảnh quan di sản nổi tiếng.",
+                RegionId = regionNorth.Id
+            };
+            var destination2 = new WebsiteTour.Models.Entities.Destination
+            {
+                Name = "Sapa",
+                Slug = "sapa",
+                Description = "Điểm trekking và văn hóa bản địa đặc sắc.",
+                RegionId = regionNorth.Id
+            };
 
             context.Categories.Add(category);
             context.Destinations.AddRange(destination, destination2);
             context.SaveChanges();
 
-            context.Tours.AddRange(
-                new WebsiteTour.Models.Entities.Tour { Title = "Du thuyền Hạ Long Sang Trọng & Khám Phá Hang Động", Price = 299, Rating = 4.9, Duration = "3 Ngày 2 Đêm", Badge = "Bán Chạy Nhất", CategoryId = category.Id, DestinationId = destination.Id },
-                new WebsiteTour.Models.Entities.Tour { Title = "Trekking Sapa: Trải nghiệm Homestay Bản Làng", Price = 185, Rating = 4.7, Duration = "4 Ngày 3 Đêm", CategoryId = category.Id, DestinationId = destination2.Id }
-            );
+            var tourA = new WebsiteTour.Models.Entities.Tour
+            {
+                Title = "Du thuyền Hạ Long Sang Trọng & Khám Phá Hang Động",
+                Price = 299,
+                Rating = 4.9,
+                Duration = "3 Ngày 2 Đêm",
+                CategoryId = category.Id,
+                DestinationId = destination.Id
+            };
+            var tourB = new WebsiteTour.Models.Entities.Tour
+            {
+                Title = "Trekking Sapa: Trải nghiệm Homestay Bản Làng",
+                Price = 185,
+                Rating = 4.7,
+                Duration = "4 Ngày 3 Đêm",
+                CategoryId = category.Id,
+                DestinationId = destination2.Id
+            };
+            context.Tours.AddRange(tourA, tourB);
             context.SaveChanges();
 
             var tour1 = context.Tours.First();
             var tour2 = context.Tours.Skip(1).First();
+            context.TourDestinations.AddRange(
+                new WebsiteTour.Models.Entities.TourDestination { TourId = tour1.Id, DestinationId = destination.Id },
+                new WebsiteTour.Models.Entities.TourDestination { TourId = tour2.Id, DestinationId = destination2.Id }
+            );
+            context.SaveChanges();
+
             context.TourImages.AddRange(
                 new WebsiteTour.Models.Entities.TourImage { TourId = tour1.Id, ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuCJTc_bIx0R9u9bMrsmfty95mpAXFuDUqa1VYdHkrVHgd_74X7EqkUAHVcun8lVCF3TysT9-0qO_Pqo0sP2EJL8IbmueM6TXhKEpWu-_amunCq9n5wNclfHxPYZ0GhEWoKqE3MAnAI8erj7nng8-PPiUya6Y3x66iI09VCOM7AjL_RkZsYP9PGtszH726we_GH9-lUkopXFhvJwNtPtsNZ0MwrKW1yd4gWE_9GeAsP-5ALuOLoQwk1SWm-yeb0o2Kh0fYpRd89fQQ", IsPrimary = true },
                 new WebsiteTour.Models.Entities.TourImage { TourId = tour2.Id, ImageUrl = "https://lh3.googleusercontent.com/aida-public/AB6AXuDsuAOAmyHthVIPgSMFE-vu1vf667YpKH2BzbR0xK1AJP7T1U358VvO7gZN3tCeo7rU_N7WKz8L4GTCT4l814TcIWhoTfpC3xjdt9Q2FSQaTHFzZ7Sv1bcquMmGBaYMqaARJjRt5Wie2JtWgaOXYJUy47jPP1MY9xO_JQahe4_HKdNHkpg2ZLJuxkhWwSbdmISO4rxBtS-MLQ2slYiopi7fuzMS2mbhQbWaGXqzpTZDPzaBgWvgqoX81fgtPEbYj4ZRBVzI6-YvCQ", IsPrimary = true }
@@ -142,7 +192,7 @@ using (var scope = app.Services.CreateScope())
                 context.Users.Add(new WebsiteTour.Models.Entities.User
                 {
                     Username = "admin",
-                    PasswordHash = "admin123",
+                    PasswordHash = PasswordHasher.HashPassword("admin123"),
                     Email = "admin@vietexplore.com",
                     RoleId = adminRole.Id
                 });
@@ -150,7 +200,7 @@ using (var scope = app.Services.CreateScope())
             else
             {
                 Console.WriteLine("--> Updating Admin user password and role...");
-                adminUser.PasswordHash = "admin123";
+                adminUser.PasswordHash = PasswordHasher.HashPassword("admin123");
                 adminUser.RoleId = adminRole.Id;
             }
             context.SaveChanges();

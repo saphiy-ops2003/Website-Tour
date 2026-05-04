@@ -1,0 +1,226 @@
+  @model IEnumerable<WebsiteTour.Models.Entities.Destination>
+@{
+    ViewData["Title"] = "Điểm đến";
+    Layout = "_AdminLayout";
+    var regions = (List<WebsiteTour.Models.Entities.Region>)ViewBag.Regions;
+}
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+  <div class="xl:col-span-1 bg-white rounded-3xl border border-slate-200 shadow-sm p-6 self-start sticky top-6">
+    <h2 id="formTitle" class="text-lg font-bold text-slate-800 mb-4">Thêm điểm đến mới</h2>
+    <form id="destForm" asp-action="CreateDestination" method="post" enctype="multipart/form-data" class="space-y-4">
+      <input type="hidden" id="formId" name="id" value="" />
+      <div>
+        <label class="text-xs font-bold text-slate-500 uppercase">Tên điểm đến *</label>
+        <input id="formName" name="name" required class="w-full px-4 py-3 mt-1 rounded-xl border border-slate-200 focus:border-accent outline-none" placeholder="Hà Nội" />
+      </div>
+      <div>
+        <label class="text-xs font-bold text-slate-500 uppercase">Đường dẫn (Slug)</label>
+        <input id="formSlug" name="slug" class="w-full px-4 py-3 mt-1 rounded-xl border border-slate-200 focus:border-accent outline-none text-sm" placeholder="Tự động tạo nếu để trống" />
+      </div>
+      <div>
+        <label class="text-xs font-bold text-slate-500 uppercase">Vùng miền *</label>
+        <select id="formRegion" name="regionId" required class="w-full px-4 py-3 mt-1 rounded-xl border border-slate-200 focus:border-accent outline-none">
+          <option value="" disabled selected>Chọn vùng</option>
+          @foreach (var region in regions)
+          {
+            <option value="@region.Id">@region.Name</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-slate-500 uppercase">Hình ảnh đại diện</label>
+        <input id="formImage" name="imageFile" type="file" accept="image/*" class="w-full px-4 py-3 mt-1 rounded-xl border border-slate-200 focus:border-accent outline-none text-sm" />
+      </div>
+      <div>
+        <label class="text-xs font-bold text-slate-500 uppercase">Mô tả chi tiết</label>
+        <textarea id="formDesc" name="description" rows="3" class="w-full px-4 py-3 mt-1 rounded-xl border border-slate-200 focus:border-accent outline-none resize-none" placeholder="Điểm đến này có gì thú vị..."></textarea>
+      </div>
+      <div class="flex items-center gap-3 pt-2">
+        <button type="submit" id="btnSubmit" class="flex-1 bg-accent text-white px-5 py-3 rounded-xl font-bold shadow hover:opacity-90 transition-all">Thêm điểm đến</button>
+        <button type="button" id="btnCancel" onclick="cancelEdit()" class="hidden px-5 py-3 rounded-xl bg-slate-100 text-slate-600 font-bold hover:bg-slate-200 transition-all">Hủy</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="xl:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-140px)]">
+    <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+      <h2 class="text-lg font-bold text-slate-800">Danh sách Điểm đến</h2>
+      <div class="relative w-full md:w-72">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" id="searchInput" placeholder="Tìm tên điểm đến, vùng..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-accent outline-none" />
+      </div>
+    </div>
+    
+    <div class="flex-1 overflow-auto">
+      <table class="w-full text-left border-collapse">
+        <thead class="sticky top-0 bg-slate-50 z-10 shadow-sm">
+          <tr class="text-slate-500 text-xs uppercase tracking-widest border-b border-slate-200">
+            <th class="p-4 font-bold w-16">Ảnh</th>
+            <th class="p-4 font-bold">Điểm đến</th>
+            <th class="p-4 font-bold">Vùng miền</th>
+            <th class="p-4 font-bold text-right">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody" class="divide-y divide-slate-100">
+          @foreach (var d in Model.OrderBy(x => x.Region?.Name).ThenBy(x => x.Name))
+          {
+            <tr class="dest-row hover:bg-slate-50 transition-colors" data-name="@d.Name.ToLower()" data-region="@(d.Region?.Name.ToLower() ?? "")">
+              <td class="p-4">
+                 @if (!string.IsNullOrEmpty(d.ImageUrl)) {
+                   <img src="@d.ImageUrl" class="w-12 h-12 object-cover rounded-xl shadow-sm" />
+                 } else {
+                   <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center"><i data-lucide="image" class="w-5 h-5 text-slate-400"></i></div>
+                 }
+              </td>
+              <td class="p-4">
+                 <p class="font-bold text-slate-800 text-sm">@d.Name</p>
+                 <p class="text-xs text-slate-500 mt-1">/@d.Slug</p>
+              </td>
+              <td class="p-4">
+                 <span class="inline-block bg-slate-100 text-slate-600 text-xs font-semibold px-2 py-1 rounded-lg">@d.Region?.Name</span>
+              </td>
+              <td class="p-4 text-right">
+                 <div class="flex items-center justify-end gap-2">
+                   <button type="button" onclick="editDest(@d.Id, `@d.Name`, `@d.Slug`, @d.RegionId, `@d.Description`)" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors" title="Sửa">
+                     <i data-lucide="pencil" class="w-4 h-4"></i>
+                   </button>
+                   <form asp-action="DeleteDestination" method="post" onsubmit="return confirm('Xóa điểm đến này?')" class="inline">
+                     <input type="hidden" name="id" value="@d.Id" />
+                     <button type="submit" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors" title="Xóa">
+                       <i data-lucide="trash-2" class="w-4 h-4"></i>
+                     </button>
+                   </form>
+                 </div>
+                 <p class="text-[10px] text-slate-400 mt-2">@d.TourDestinations.Count tour liên kết</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div id="noResults" class="hidden p-8 text-center text-slate-500 font-medium">
+        Không tìm thấy điểm đến nào phù hợp.
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-slate-100 flex items-center justify-between text-sm bg-white">
+      <p class="text-slate-500">Hiển thị <span id="pageInfo" class="font-bold text-slate-800"></span></p>
+      <div class="flex items-center gap-1" id="paginationControls">
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+  function editDest(id, name, slug, regionId, description) {
+    document.getElementById('formTitle').textContent = 'Sửa Điểm Đến';
+    const form = document.getElementById('destForm');
+    form.action = '/Admin/UpdateDestination';
+    document.getElementById('formId').value = id;
+    document.getElementById('formName').value = name;
+    document.getElementById('formSlug').value = slug;
+    document.getElementById('formRegion').value = regionId;
+    document.getElementById('formDesc').value = description;
+    
+    document.getElementById('btnSubmit').textContent = 'Lưu Thay Đổi';
+    document.getElementById('btnCancel').classList.remove('hidden');
+    
+    // Cuộn lên đầu form trên mobile
+    document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function cancelEdit() {
+    document.getElementById('formTitle').textContent = 'Thêm Điểm Đến Mới';
+    const form = document.getElementById('destForm');
+    form.action = '/Admin/CreateDestination';
+    form.reset();
+    document.getElementById('formId').value = '';
+    document.getElementById('btnSubmit').textContent = 'Thêm Điểm Đến';
+    document.getElementById('btnCancel').classList.add('hidden');
+  }
+
+  // Phân trang và Tìm kiếm
+  document.addEventListener("DOMContentLoaded", () => {
+    const rows = Array.from(document.querySelectorAll('.dest-row'));
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('tableBody');
+    const noResults = document.getElementById('noResults');
+    const pageInfo = document.getElementById('pageInfo');
+    const paginationControls = document.getElementById('paginationControls');
+    
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let filteredRows = [...rows];
+
+    function renderTable() {
+      tableBody.innerHTML = '';
+      if (filteredRows.length === 0) {
+        noResults.classList.remove('hidden');
+        pageInfo.textContent = '0/0';
+        paginationControls.innerHTML = '';
+        return;
+      }
+      noResults.classList.add('hidden');
+
+      const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const currentItems = filteredRows.slice(start, end);
+
+      currentItems.forEach(row => tableBody.appendChild(row));
+      
+      pageInfo.textContent = `${start + 1}-${Math.min(end, filteredRows.length)} / ${filteredRows.length}`;
+      renderPagination(totalPages);
+      lucide.createIcons();
+    }
+
+    function renderPagination(totalPages) {
+      paginationControls.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      const createBtn = (text, page, disabled = false, active = false) => {
+        const btn = document.createElement('button');
+        btn.innerHTML = text;
+        btn.disabled = disabled;
+        btn.className = `w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs transition-colors ${
+          active ? 'bg-accent text-white' : 
+          disabled ? 'text-slate-300 cursor-not-allowed' : 
+          'bg-slate-50 text-slate-600 hover:bg-slate-200'
+        }`;
+        if (!disabled && !active) {
+          btn.onclick = () => { currentPage = page; renderTable(); };
+        }
+        return btn;
+      };
+
+      paginationControls.appendChild(createBtn('<i data-lucide="chevron-left" class="w-4 h-4"></i>', currentPage - 1, currentPage === 1));
+      
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + 4);
+      if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+      for (let i = startPage; i <= endPage; i++) {
+        paginationControls.appendChild(createBtn(i, i, false, i === currentPage));
+      }
+
+      paginationControls.appendChild(createBtn('<i data-lucide="chevron-right" class="w-4 h-4"></i>', currentPage + 1, currentPage === totalPages));
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      filteredRows = rows.filter(row => 
+        row.getAttribute('data-name').includes(term) || 
+        row.getAttribute('data-region').includes(term)
+      );
+      currentPage = 1;
+      renderTable();
+    });
+
+    renderTable();
+  });
+</script>
+}
