@@ -15,6 +15,18 @@
                 <div class="md:col-span-2">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Tên Tour *</label>
                     <input name="Title" required placeholder="Ví dụ: Hành Trình Vịnh Hạ Long 2N1Đ" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-accent outline-none transition-all font-medium text-slate-800" />
+                    
+                    <!-- Duplicate Warning UI -->
+                    <div id="duplicateWarning" class="hidden mt-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="text-sm font-bold text-amber-800">Gợi ý: Phát hiện tour tương tự!</p>
+                                <p class="text-xs text-amber-700 mt-1" id="duplicateDetails"></p>
+                                <ul id="similarList" class="mt-2 space-y-1 list-disc list-inside text-xs text-amber-700 font-medium"></ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="md:col-span-2">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Mô tả</label>
@@ -232,6 +244,73 @@
                 });
                 scheduleCount = rows.length;
             }
+
+            // --- DUPLICATE & SIMILAR CHECK LOGIC ---
+            const titleInput = document.querySelector('input[name="Title"]');
+            const duplicateWarning = document.getElementById('duplicateWarning');
+            const duplicateDetails = document.getElementById('duplicateDetails');
+            const similarList = document.getElementById('similarList');
+
+            async function checkSimilarTours() {
+                const titleVal = titleInput.value.trim();
+                const daysVal = numberOfDaysInput.value;
+                const firstDest = document.querySelector('input[name="destinationIds"]:checked');
+                const destId = firstDest ? firstDest.value : null;
+
+                if (titleVal.length < 3) {
+                    duplicateWarning.classList.add('hidden');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/Admin/GetSimilarTours?title=${encodeURIComponent(titleVal)}&days=${daysVal}&destId=${destId || ''}`);
+                    const res = await response.json();
+
+                    if (res.count > 0) {
+                        duplicateWarning.classList.remove('hidden');
+                        similarList.innerHTML = '';
+                        
+                        let isExact = false;
+                        res.data.forEach(t => {
+                            if (t.title.toLowerCase() === titleVal.toLowerCase() && t.days == daysVal) {
+                                isExact = true;
+                            }
+                            const li = document.createElement('li');
+                            li.innerHTML = `<a href="/Admin/EditTour/${t.id}" target="_blank" class="hover:underline">#${t.id} ${t.title} (${t.days} ngày - ${t.destination})</a>`;
+                            similarList.appendChild(li);
+                        });
+
+                        if (isExact) {
+                            duplicateDetails.innerText = "Cảnh báo: Có tour trùng Tên và Số ngày. Nếu trùng thêm Điểm đến chính, bạn sẽ không thể lưu.";
+                            duplicateWarning.classList.replace('bg-amber-50', 'bg-red-50');
+                            duplicateWarning.classList.replace('border-amber-200', 'border-red-200');
+                        } else {
+                            duplicateDetails.innerText = "Hệ thống tìm thấy các tour có tên hoặc địa điểm tương tự:";
+                            duplicateWarning.classList.replace('bg-red-50', 'bg-amber-50');
+                            duplicateWarning.classList.replace('border-red-200', 'border-amber-200');
+                        }
+                        if (window.lucide) lucide.createIcons();
+                    } else {
+                        duplicateWarning.classList.add('hidden');
+                    }
+                } catch (err) {
+                    console.error("Check similar failed", err);
+                }
+            }
+
+            function debounce(func, timeout = 500) {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                };
+            }
+
+            const debouncedCheck = debounce(checkSimilarTours, 500);
+            titleInput.addEventListener('input', debouncedCheck);
+            numberOfDaysInput.addEventListener('change', checkSimilarTours);
+            const destContainer = document.getElementById('destinationList');
+            if (destContainer) destContainer.addEventListener('change', checkSimilarTours);
 
             // Initial row
             addScheduleRow();

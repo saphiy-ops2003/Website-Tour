@@ -69,6 +69,7 @@ namespace WebsiteTour.Controllers
         public async Task<IActionResult> Tours()
         {
             var tours = await _context.Tours
+                .AsNoTracking()
                 .Include(t => t.Images)
                 .Include(t => t.Destination)
                 .Include(t => t.TourDestinations)
@@ -76,6 +77,7 @@ namespace WebsiteTour.Controllers
                 .Include(t => t.Category)
                 .Include(t => t.Schedules)
                 .Include(t => t.Bookings)
+                .AsSplitQuery()
                 .ToListAsync();
             return View(tours);
         }
@@ -91,10 +93,28 @@ namespace WebsiteTour.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateTour(Tour model, List<IFormFile>? imageFiles, List<int> destinationIds, List<Itinerary> itineraries, List<TourSchedule> schedules)
         {
-            // Validation
             if (string.IsNullOrWhiteSpace(model.Title) || string.IsNullOrWhiteSpace(model.Description) || !destinationIds.Any() || itineraries == null || itineraries.Count < 1 || schedules == null || schedules.Count < 1 || model.Days < 1)
             {
                 TempData["ErrorMessage"] = "Dữ liệu không hợp lệ. Vui lòng nhập đầy đủ: Tên tour, Mô tả, ít nhất 1 điểm đến, 1 ngày lịch trình và 1 ngày khởi hành.";
+                ViewBag.Categories = await _context.Categories.ToListAsync();
+                ViewBag.Destinations = await _context.Destinations.Include(d => d.Region).ToListAsync();
+                ViewBag.Regions = await _context.Regions.OrderBy(r => r.Name).ToListAsync();
+                return View(model);
+            }
+
+            // --- Logic kiểm tra trùng tour hoàn toàn ---
+            var primaryDestId = destinationIds.First();
+            var duplicateTour = await _context.Tours
+                .Include(t => t.Destination)
+                .FirstOrDefaultAsync(t => 
+                    t.Title.ToLower() == model.Title.Trim().ToLower() && 
+                    t.Days == model.Days && 
+                    t.DestinationId == primaryDestId &&
+                    !t.IsDeleted);
+
+            if (duplicateTour != null)
+            {
+                TempData["ErrorMessage"] = $"KHÔNG THỂ TẠO: Đã có tour trùng hoàn toàn (Tên: {duplicateTour.Title}, {duplicateTour.Days} ngày, Điểm đến: {duplicateTour.Destination?.Name}).";
                 ViewBag.Categories = await _context.Categories.ToListAsync();
                 ViewBag.Destinations = await _context.Destinations.Include(d => d.Region).ToListAsync();
                 ViewBag.Regions = await _context.Regions.OrderBy(r => r.Name).ToListAsync();
@@ -136,8 +156,8 @@ namespace WebsiteTour.Controllers
 
             if (imageFiles != null && imageFiles.Count > 0)
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                string toursFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "tours", model.Id.ToString());
+                if (!Directory.Exists(toursFolder)) Directory.CreateDirectory(toursFolder);
                 
                 bool isFirst = true;
                 foreach (var file in imageFiles)
@@ -145,12 +165,12 @@ namespace WebsiteTour.Controllers
                     if (file.Length > 0)
                     {
                         string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        string filePath = Path.Combine(toursFolder, uniqueFileName);
                         using (var fileStream = new FileStream(filePath, FileMode.Create))
                         {
                             await file.CopyToAsync(fileStream);
                         }
-                        _context.TourImages.Add(new TourImage { TourId = model.Id, ImageUrl = "/uploads/" + uniqueFileName, IsPrimary = isFirst });
+                        _context.TourImages.Add(new TourImage { TourId = model.Id, ImageUrl = "/uploads/tours/" + model.Id + "/" + uniqueFileName, IsPrimary = isFirst });
                         isFirst = false;
                     }
                 }
@@ -171,16 +191,18 @@ namespace WebsiteTour.Controllers
         public async Task<IActionResult> EditTour(int id)
         {
             var tour = await _context.Tours
+                .AsNoTracking()
                 .Include(t => t.Images)
                 .Include(t => t.Schedules.OrderBy(s => s.StartDate))
                 .Include(t => t.TourDestinations)
                 .Include(t => t.Itineraries.OrderBy(i => i.DayNumber))
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(t => t.Id == id);
             if (tour == null) return RedirectToAction("Tours");
 
-            ViewBag.Categories = await _context.Categories.ToListAsync();
-            ViewBag.Destinations = await _context.Destinations.Include(d => d.Region).ToListAsync();
-            ViewBag.Regions = await _context.Regions.OrderBy(r => r.Name).ToListAsync();
+            ViewBag.Categories = await _context.Categories.AsNoTracking().ToListAsync();
+            ViewBag.Destinations = await _context.Destinations.AsNoTracking().Include(d => d.Region).ToListAsync();
+            ViewBag.Regions = await _context.Regions.AsNoTracking().OrderBy(r => r.Name).ToListAsync();
             ViewBag.SelectedDestinationIds = tour.TourDestinations.Select(td => td.DestinationId).ToList();
             return View(tour);
         }
@@ -228,8 +250,8 @@ namespace WebsiteTour.Controllers
 
                 if (imageFiles != null && imageFiles.Count > 0)
                 {
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                    string toursFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "tours", id.ToString());
+                    if (!Directory.Exists(toursFolder)) Directory.CreateDirectory(toursFolder);
 
                     var existingImages = await _context.TourImages.Where(i => i.TourId == id).ToListAsync();
                     bool hasPrimary = existingImages.Any(i => i.IsPrimary);
@@ -239,13 +261,13 @@ namespace WebsiteTour.Controllers
                         if (file.Length > 0)
                         {
                             string uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-                            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                            string filePath = Path.Combine(toursFolder, uniqueFileName);
                             using (var fileStream = new FileStream(filePath, FileMode.Create))
                             {
                                 await file.CopyToAsync(fileStream);
                             }
                             
-                            _context.TourImages.Add(new TourImage { TourId = id, ImageUrl = "/uploads/" + uniqueFileName, IsPrimary = !hasPrimary });
+                            _context.TourImages.Add(new TourImage { TourId = id, ImageUrl = "/uploads/tours/" + id + "/" + uniqueFileName, IsPrimary = !hasPrimary });
                             hasPrimary = true;
                         }
                     }
@@ -266,6 +288,23 @@ namespace WebsiteTour.Controllers
                 return RedirectToAction("Tours");
             }
             return RedirectToAction("Tours");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSimilarTours(string title, int? days, int? destId)
+        {
+            if (string.IsNullOrWhiteSpace(title)) return Json(new { count = 0 });
+
+            var query = _context.Tours
+                .Include(t => t.Destination)
+                .Where(t => !t.IsDeleted && (t.Title.Contains(title) || (destId.HasValue && t.DestinationId == destId)));
+
+            var similar = await query
+                .Select(t => new { t.Id, t.Title, t.Days, Destination = t.Destination.Name })
+                .Take(5)
+                .ToListAsync();
+
+            return Json(new { count = similar.Count, data = similar });
         }
 
         [HttpPost]
@@ -392,16 +431,16 @@ namespace WebsiteTour.Controllers
             string imageUrl = "";
             if (imageFile != null && imageFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                string destFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "destinations");
+                if (!Directory.Exists(destFolder)) Directory.CreateDirectory(destFolder);
 
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                string filePath = Path.Combine(destFolder, uniqueFileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await imageFile.CopyToAsync(fileStream);
                 }
-                imageUrl = "/uploads/" + uniqueFileName;
+                imageUrl = "/uploads/destinations/" + uniqueFileName;
             }
 
             _context.Destinations.Add(new Destination
@@ -446,16 +485,16 @@ namespace WebsiteTour.Controllers
             
             if (imageFile != null && imageFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+                string destFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "destinations");
+                if (!Directory.Exists(destFolder)) Directory.CreateDirectory(destFolder);
 
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                string filePath = Path.Combine(destFolder, uniqueFileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await imageFile.CopyToAsync(fileStream);
                 }
-                destination.ImageUrl = "/uploads/" + uniqueFileName;
+                destination.ImageUrl = "/uploads/destinations/" + uniqueFileName;
             }
 
             destination.RegionId = regionId;
