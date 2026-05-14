@@ -1,0 +1,83 @@
+@model WebsiteTour.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="bg-slate-50 min-h-screen py-10 font-sans">
+    <div class="max-w-3xl mx-auto px-6">
+        
+        <div class="mb-8">
+            <h1 class="text-3xl font-black text-slate-800 mb-2">Hồ sơ cá nhân</h1>
+            <p class="text-slate-500 font-medium">Quản lý thông tin và cài đặt bảo mật của bạn.</p>
+        </div>
+
+        @if (ViewBag.SuccessMessage != null)
+        {
+            <div class="mb-6 bg-green-100 text-green-700 px-6 py-4 rounded-xl font-bold flex items-center gap-3">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                @ViewBag.SuccessMessage
+            </div>
+        }
+
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+            <div class="flex items-center gap-6 mb-8 pb-8 border-b border-slate-100">
+                <div class="w-20 h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-3xl uppercase">
+                    @(string.IsNullOrEmpty(Model.Username) ? "U" : Model.Username.Substring(0, 1))
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">@Model.Username</h2>
+                    <p class="text-slate-500 font-medium mt-1">Thành viên VietExplore</p>
+                </div>
+            </div>
+
+            <form asp-action="Profile" method="post" class="space-y-6">
+                <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-bold mb-4"></div>
+                
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">Thông tin cơ bản</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block ml-1" asp-for="Username">Tên hiển thị</label>
+                            <input asp-for="Username" readonly class="w-full bg-slate-100 p-3.5 rounded-xl border border-transparent font-medium text-slate-500 cursor-not-allowed" />
+                            <span class="text-xs text-slate-400 font-medium ml-1">Không thể thay đổi tên đăng nhập.</span>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block ml-1" asp-for="Email">Email</label>
+                            <input asp-for="Email" class="w-full bg-slate-50 p-3.5 rounded-xl border border-slate-200 focus:border-primary outline-none transition-all font-medium text-slate-700" />
+                            <span asp-validation-for="Email" class="text-red-500 text-xs font-bold"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-100">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4">Đổi mật khẩu</h3>
+                    <p class="text-sm text-slate-500 mb-6 font-medium">Bỏ trống nếu bạn không muốn thay đổi mật khẩu hiện tại.</p>
+                    
+                    <div class="space-y-4 max-w-md">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block ml-1" asp-for="CurrentPassword">Mật khẩu hiện tại</label>
+                            <input asp-for="CurrentPassword" type="password" placeholder="••••••••" class="w-full bg-slate-50 p-3.5 rounded-xl border border-slate-200 focus:border-primary outline-none transition-all font-medium text-slate-700" />
+                            <span asp-validation-for="CurrentPassword" class="text-red-500 text-xs font-bold"></span>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block ml-1" asp-for="NewPassword">Mật khẩu mới</label>
+                            <input asp-for="NewPassword" type="password" placeholder="••••••••" class="w-full bg-slate-50 p-3.5 rounded-xl border border-slate-200 focus:border-primary outline-none transition-all font-medium text-slate-700" />
+                            <span asp-validation-for="NewPassword" class="text-red-500 text-xs font-bold"></span>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block ml-1" asp-for="ConfirmNewPassword">Xác nhận mật khẩu mới</label>
+                            <input asp-for="ConfirmNewPassword" type="password" placeholder="••••••••" class="w-full bg-slate-50 p-3.5 rounded-xl border border-slate-200 focus:border-primary outline-none transition-all font-medium text-slate-700" />
+                            <span asp-validation-for="ConfirmNewPassword" class="text-red-500 text-xs font-bold"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-8 mt-8 border-t border-slate-100 flex justify-end">
+                    <button type="submit" class="bg-primary text-white font-bold px-8 py-3.5 rounded-xl shadow-lg hover:bg-primary-dark transition-all active:scale-95 flex items-center gap-2">
+                        Lưu thay đổi <i data-lucide="save" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

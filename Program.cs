@@ -8,14 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<SlugService>();
 
 builder.Services.AddAuthentication("CookieAuth")
     .AddCookie("CookieAuth", options =>
     {
         options.Cookie.Name = "VietExploreAuth";
-        options.LoginPath = "/Home/Login";
+        options.LoginPath = "/Admin/AccountAdmin/Login";
+
         options.LogoutPath = "/Home/Logout";
-        options.AccessDeniedPath = "/Home/Login";
+        options.AccessDeniedPath = "/Admin/AccountAdmin/Login";
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
     });
 
@@ -44,6 +46,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=DashboardAdmin}/{action=Index}/{id?}"
+);
+
 
 app.MapControllerRoute(
     name: "default",

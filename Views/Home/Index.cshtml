@@ -1,4 +1,4 @@
-@model WebsiteTour.Models.ViewModels.HomeIndexViewModel
+@model WebsiteTour.ViewModels.HomeIndexViewModel
 @{
     ViewData["Title"] = "Trang Chủ";
 }
@@ -21,7 +21,7 @@
         Không chỉ là những chuyến đi, chúng tôi mang đến cho bạn trải nghiệm độc bản, chạm tới trái tim và đánh thức mọi giác quan trên dải đất hình chữ S.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="/Home/Tours" class="px-8 py-4 bg-accent text-white font-bold rounded-2xl hover:bg-white hover:text-accent transition-all shadow-[0_0_40px_rgba(255,165,0,0.4)] hover:shadow-[0_0_60px_rgba(255,165,0,0.6)] text-lg no-underline flex items-center gap-2">
+        <a href="/Tour/Tours" class="px-8 py-4 bg-accent text-white font-bold rounded-2xl hover:bg-white hover:text-accent transition-all shadow-[0_0_40px_rgba(255,165,0,0.4)] hover:shadow-[0_0_60px_rgba(255,165,0,0.6)] text-lg no-underline flex items-center gap-2">
           Khám Phá Ngay <i data-lucide="compass" class="w-5 h-5"></i>
         </a>
         <a href="#why-choose-us" class="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 backdrop-blur-md transition-all text-lg no-underline flex items-center gap-2">
@@ -105,14 +105,14 @@
           <h2 class="text-sm font-black text-accent uppercase tracking-widest mb-3">Hot Nhất Tuần Này</h2>
           <h3 class="text-3xl md:text-4xl font-bold text-slate-800">Tour Được Yêu Thích Nhất</h3>
         </div>
-        <a href="/Home/Tours" class="flex items-center gap-2 text-primary font-bold hover:text-primary-dark transition-colors px-6 py-3 rounded-xl bg-primary/5 hover:bg-primary/10 no-underline">
+        <a href="/Tour/Tours" class="flex items-center gap-2 text-primary font-bold hover:text-primary-dark transition-colors px-6 py-3 rounded-xl bg-primary/5 hover:bg-primary/10 no-underline">
           Khám phá thêm <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </a>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         @foreach (var tour in Model.PopularTours)
         {
-          <a href="/Home/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative no-underline">
+          <a href="/Tour/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative no-underline">
             <button class="absolute top-4 right-4 z-20 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/40 transition-colors">
               <i data-lucide="heart" class="w-5 h-5 text-white"></i>
             </button>
@@ -201,7 +201,7 @@
                            ? destination.ImageUrl 
                            : "https://images.unsplash.com/photo-1599839619722-39751411ea63";
 
-              <a href="/Home/Tours?destinationId=@destination.Id" class="group relative rounded-2xl overflow-hidden cursor-pointer block @spanClass">
+              <a href="/Tour/Tours?destinationId=@destination.Id" class="group relative rounded-2xl overflow-hidden cursor-pointer block @spanClass">
                 <img src="@imgUrl" alt="@destination.Name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent group-hover:bg-primary/40 transition-colors duration-500"></div>
                 
@@ -228,6 +228,26 @@
           <div class="text-4xl md:text-5xl font-black text-primary mb-2">15K+</div>
           <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Khách Hàng Hài Lòng</p>
         </div>
+<<<<<<< HEAD
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          @foreach (var tour in Model.RecommendedTours.Take(3))
+          {
+            <a href="/Tour/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 relative no-underline">
+              <div class="relative h-64 overflow-hidden">
+                <img src="@tour.Images.FirstOrDefault()?.ImageUrl" alt="@tour.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+              </div>
+              <div class="p-6 flex-1 flex flex-col">
+                <h3 class="font-bold text-xl text-slate-800 mb-2 line-clamp-2 leading-snug group-hover:text-primary transition-colors">@tour.Title</h3>
+                <p class="text-sm text-slate-500 mb-6">@tour.Duration • @tour.Destination?.Name</p>
+                <div class="mt-auto flex items-center justify-between">
+                  <div class="font-black text-2xl text-primary-dark">$@tour.Price</div>
+                  <div class="px-4 py-2 bg-primary/10 text-primary font-bold rounded-xl group-hover:bg-primary group-hover:text-white transition-all">Xem Tour</div>
+                </div>
+              </div>
+            </a>
+          }
+=======
         <div>
           <div class="text-4xl md:text-5xl font-black text-primary mb-2">500+</div>
           <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Tour Trải Nghiệm</p>
@@ -239,6 +259,7 @@
         <div>
           <div class="text-4xl md:text-5xl font-black text-accent mb-2">4.9</div>
           <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Điểm Đánh Giá</p>
+>>>>>>> ed9148a6647bc22514df752deb36fb86f5e02af8
         </div>
       </div>
     </div>
@@ -258,7 +279,7 @@
         <a href="/Home/Register" class="px-8 py-4 bg-accent text-white font-bold rounded-2xl hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,165,0,0.4)] text-lg no-underline">
           Tạo Tài Khoản
         </a>
-        <a href="/Home/Tours" class="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all text-lg no-underline">
+        <a href="/Tour/Tours" class="px-8 py-4 bg-white/10 text-white font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all text-lg no-underline">
           Xem Tất Cả Tour
         </a>
       </div>

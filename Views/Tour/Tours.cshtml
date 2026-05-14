@@ -1,0 +1,232 @@
+@model IEnumerable<WebsiteTour.Models.Entities.Tour>
+@{
+    ViewData["Title"] = "Tours";
+    var regions = ViewBag.Regions as List<WebsiteTour.Models.Entities.Region> ?? new List<WebsiteTour.Models.Entities.Region>();
+    var currentRegion = ViewBag.CurrentRegion as int?;
+    var maxPrice = ViewBag.MaxPrice as decimal?;
+    var currentDuration = ViewBag.CurrentDuration as int?;
+    var sortBy = ViewBag.SortBy as string ?? "popular";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var totalItems = ViewBag.TotalItems as int? ?? 0;
+}
+
+<div class="bg-slate-50 min-h-screen py-12">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row gap-8">
+      
+      <!-- Sidebar -->
+      <aside class="w-full md:w-1/4 space-y-8">
+        <form id="filterForm" method="get" action="/Tour/Tours" class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm sticky top-24">
+          <input type="hidden" name="sortBy" value="@sortBy" id="hiddenSortBy" />
+          <input type="hidden" name="page" value="1" id="hiddenPage" />
+          @if (ViewBag.FilterDestination != null)
+          {
+            <input type="hidden" name="destinationId" value="@Context.Request.Query["destinationId"]" />
+          }
+          
+          <h3 class="text-2xl font-bold text-primary-dark mb-8 flex items-center gap-2">
+            <i data-lucide="filter" class="w-5 h-5"></i> Bộ Lọc
+          </h3>
+          
+          <div class="space-y-10">
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-4">Khoảng Giá Tối Đa</label>
+              <input type="range" name="maxPrice" min="0" max="2000" step="50" value="@(maxPrice ?? 2000)" oninput="document.getElementById('priceVal').innerText = '$' + this.value" class="w-full h-2 bg-slate-100 rounded-lg accent-primary cursor-pointer" />
+              <div class="flex justify-between mt-3 text-sm text-slate-500 font-medium">
+                <span>$0</span>
+                <span id="priceVal" class="text-primary font-bold">$@(maxPrice ?? 2000)</span>
+              </div>
+            </div>
+
+            <div>
+               <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-4">Thời Gian</label>
+               <div class="space-y-3">
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                     <input type="radio" name="duration" value="" @(currentDuration == null ? "checked" : "") class="rounded-full text-primary focus:ring-primary w-5 h-5 border-slate-300" />
+                     <span class="text-slate-600 group-hover:text-primary transition-colors">Tất cả</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                     <input type="radio" name="duration" value="1" @(currentDuration == 1 ? "checked" : "") class="rounded-full text-primary focus:ring-primary w-5 h-5 border-slate-300" />
+                     <span class="text-slate-600 group-hover:text-primary transition-colors">1-3 ngày</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                     <input type="radio" name="duration" value="2" @(currentDuration == 2 ? "checked" : "") class="rounded-full text-primary focus:ring-primary w-5 h-5 border-slate-300" />
+                     <span class="text-slate-600 group-hover:text-primary transition-colors">4-7 ngày</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                     <input type="radio" name="duration" value="3" @(currentDuration == 3 ? "checked" : "") class="rounded-full text-primary focus:ring-primary w-5 h-5 border-slate-300" />
+                     <span class="text-slate-600 group-hover:text-primary transition-colors">Trên 1 tuần</span>
+                  </label>
+               </div>
+            </div>
+
+            <div>
+               <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-4">Vùng Miền</label>
+               <div class="flex flex-wrap gap-2">
+                  <label class="cursor-pointer">
+                      <input type="radio" name="regionId" value="" class="hidden peer" @(currentRegion == null ? "checked" : "") />
+                      <div class="px-4 py-2 rounded-full text-xs font-semibold transition-all border border-slate-200 text-slate-600 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary">Tất cả</div>
+                  </label>
+                  @foreach (var region in regions)
+                  {
+                      <label class="cursor-pointer">
+                          <input type="radio" name="regionId" value="@region.Id" class="hidden peer" @(currentRegion == region.Id ? "checked" : "") />
+                          <div class="px-4 py-2 rounded-full text-xs font-semibold transition-all border border-slate-200 text-slate-600 peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary shadow-sm hover:border-primary">@region.Name</div>
+                      </label>
+                  }
+               </div>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full mt-10 py-3.5 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-primary-dark transition-all">
+            Áp Dụng Lọc
+          </button>
+          
+          <a href="/Tour/Tours" class="block text-center w-full mt-3 py-3.5 bg-slate-100 text-primary-dark font-bold rounded-xl hover:bg-slate-200 transition-all no-underline">
+            Xóa Tất Cả
+          </a>
+        </form>
+      </aside>
+
+      <!-- List -->
+      <div class="flex-1">
+         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <div>
+              <h1 class="text-4xl font-bold text-primary-dark mb-1">Khám Phá Việt Nam</h1>
+              <p class="text-slate-500 font-medium">
+                Tìm thấy @totalItems chuyến đi
+                @if (ViewBag.FilterDestination != null)
+                {
+                  <span>- Điểm đến: @ViewBag.FilterDestination</span>
+                }
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+               <a href="/Tour/RecommendedTours" class="px-4 py-2.5 rounded-xl bg-accent/10 text-accent font-bold hover:bg-accent hover:text-white transition-colors shadow-sm">
+                 Gợi ý cho bạn
+               </a>
+               <div class="bg-white px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-3 shadow-sm">
+                  <span class="text-xs font-bold text-slate-400 uppercase">Sắp xếp:</span>
+                  <select onchange="document.getElementById('hiddenSortBy').value = this.value; document.getElementById('filterForm').submit();" class="border-none bg-transparent text-sm font-bold text-primary focus:ring-0 outline-none cursor-pointer">
+                     <option value="popular" selected="@(sortBy == "popular")">Phổ biến nhất</option>
+                     <option value="price_asc" selected="@(sortBy == "price_asc")">Giá thấp nhất</option>
+                     <option value="price_desc" selected="@(sortBy == "price_desc")">Giá cao nhất</option>
+                  </select>
+               </div>
+            </div>
+         </div>
+
+         @if (Model.Any())
+         {
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach (var tour in Model)
+                {
+                  <a href="/Tour/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 relative no-underline">
+                    <button class="absolute top-4 right-4 z-20 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/40 transition-colors">
+                      <i data-lucide="heart" class="w-5 h-5 text-white"></i>
+                    </button>
+                    <div class="relative h-64 overflow-hidden">
+                      <img src="@tour.Images.FirstOrDefault()?.ImageUrl" alt="@tour.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                      <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                        <div class="flex items-center gap-1.5 text-white bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-lg">
+                          @if (tour.TotalReviews > 0)
+                          {
+                              <i data-lucide="star" class="w-4 h-4 fill-accent text-accent"></i>
+                              <span class="text-sm font-bold">@tour.Rating.ToString("0.0")</span>
+                          }
+                          else
+                          {
+                              <span class="text-[10px] font-bold">Chưa có ĐG</span>
+                          }
+                        </div>
+                        <span class="bg-white text-primary-dark text-xs font-black px-3 py-1.5 rounded-xl shadow-lg">@tour.Duration</span>
+                      </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-1">
+                      <div class="flex items-center gap-2 text-xs font-bold text-primary mb-3">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i>
+                        <span>@tour.Destination?.Name</span>
+                      </div>
+                      <h3 class="text-lg font-bold text-slate-800 mb-3 line-clamp-2 leading-tight group-hover:text-primary transition-colors">@tour.Title</h3>
+                      <div class="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                          <p class="text-xs font-medium text-slate-400 mb-0.5">Giá từ</p>
+                          <p class="text-2xl font-black text-accent">$@tour.Price</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors text-primary">
+                          <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                }
+             </div>
+
+             <!-- Pagination -->
+             @if (totalPages > 1)
+             {
+                 <div class="flex justify-center mt-12 gap-2">
+                     @if (currentPage > 1)
+                     {
+                         <button onclick="goToPage(@(currentPage - 1))" class="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
+                             <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                         </button>
+                     }
+                     
+                     @for (int i = 1; i <= totalPages; i++)
+                     {
+                         if (i == currentPage)
+                         {
+                             <button class="w-10 h-10 rounded-xl flex items-center justify-center bg-primary text-white font-bold shadow-md">
+                                 @i
+                             </button>
+                         }
+                         else if (i == 1 || i == totalPages || Math.Abs(i - currentPage) <= 1)
+                         {
+                             <button onclick="goToPage(@i)" class="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors shadow-sm">
+                                 @i
+                             </button>
+                         }
+                         else if (Math.Abs(i - currentPage) == 2)
+                         {
+                             <span class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
+                         }
+                     }
+
+                     @if (currentPage < totalPages)
+                     {
+                         <button onclick="goToPage(@(currentPage + 1))" class="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
+                             <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                         </button>
+                     }
+                 </div>
+             }
+         }
+         else
+         {
+             <div class="bg-white p-12 rounded-3xl border border-slate-200 shadow-sm text-center mt-8">
+                 <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                     <i data-lucide="search-x" class="w-10 h-10 text-slate-400"></i>
+                 </div>
+                 <h3 class="text-xl font-bold text-slate-800 mb-2">Không tìm thấy chuyến đi nào</h3>
+                 <p class="text-slate-500 mb-8">Thử điều chỉnh lại bộ lọc hoặc tìm kiếm ở vùng khác xem sao.</p>
+                 <a href="/Tour/Tours" class="inline-flex px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-primary-dark transition-all no-underline">
+                     Xóa bộ lọc
+                 </a>
+             </div>
+         }
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    <script>
+        function goToPage(page) {
+            document.getElementById('hiddenPage').value = page;
+            document.getElementById('filterForm').submit();
+        }
+    </script>
+}

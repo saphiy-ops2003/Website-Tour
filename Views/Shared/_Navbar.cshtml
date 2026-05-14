@@ -20,13 +20,13 @@
         Trang Chủ
       </a>
       <a 
-        href="/Home/Tours"
+        href="/Tour/Tours"
         class="@(Model == "tours" ? "text-primary border-b-2 border-primary pb-1 font-bold" : "text-slate-600 hover:text-primary") transition-all no-underline"
       >
         Danh Sách Tour
       </a>
       <a 
-        href="/Home/Deals"
+        href="/Promotion/Deals"
         class="@(Model == "deals" ? "text-primary border-b-2 border-primary pb-1 font-bold" : "text-slate-600 hover:text-primary") transition-all no-underline"
       >
         Ưu đãi
@@ -58,15 +58,15 @@
                           <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Tài khoản của</p>
                           <p class="text-sm font-bold text-slate-800 line-clamp-1">@User.Identity.Name</p>
                       </div>
-                      <a href="/Home/Profile" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-colors no-underline">
+                      <a href="/Account/Profile" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-colors no-underline">
                           <i data-lucide="user" class="w-4 h-4"></i> Hồ sơ cá nhân
                       </a>
-                      <a href="/Home/Bookings" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-colors no-underline">
+                      <a href="/Booking/Bookings" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-primary rounded-xl transition-colors no-underline">
                           <i data-lucide="shopping-bag" class="w-4 h-4"></i> Lịch sử đặt Tour
                       </a>
                       @if (User.IsInRole("Admin"))
                       {
-                          <a href="/Admin/Index" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-amber-600 hover:bg-amber-50 rounded-xl transition-colors no-underline">
+                          <a href="/Admin/DashboardAdmin/Index" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-amber-600 hover:bg-amber-50 rounded-xl transition-colors no-underline">
                               <i data-lucide="shield" class="w-4 h-4"></i> Quản trị Admin
                           </a>
                       }
@@ -105,7 +105,7 @@
                       </div>
 
                       <div class="border-t border-slate-100 my-2"></div>
-                      <a href="/Home/Logout" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-colors no-underline">
+                      <a href="/Account/Logout" class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-colors no-underline">
                           <i data-lucide="log-out" class="w-4 h-4"></i> Đăng xuất
                       </a>
                   </div>
@@ -114,12 +114,12 @@
       }
       else
       {
-          <a class="flex items-center gap-2 cursor-pointer group no-underline" href="/Home/Login">
+          <a class="flex items-center gap-2 cursor-pointer group no-underline" href="/Account/Login">
              <i data-lucide="user-circle" class="w-6 h-6 text-slate-500 group-hover:text-primary transition-colors"></i>
           </a>
       }
       <a 
-        href="/Home/Checkout"
+        href="/Booking/Checkout"
         class="bg-primary-dark text-white px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 active:scale-95 transition-all shadow-md no-underline"
       >
         Đặt ngay

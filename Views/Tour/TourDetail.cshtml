@@ -1,0 +1,497 @@
+@model WebsiteTour.Models.Entities.Tour
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="bg-slate-50 min-h-screen py-10 font-sans">
+    <div class="max-w-6xl mx-auto px-6">
+        
+        <!-- Breadcrumbs -->
+        <nav class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-6">
+            <a href="/Home/Index" class="hover:text-primary transition-colors">Trang chủ</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="/Tour/Tours" class="hover:text-primary transition-colors">Tours</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <span class="text-slate-800 line-clamp-1">@Model.Title</span>
+        </nav>
+
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-start gap-4">
+                <div>
+                    <h1 class="text-4xl font-black text-slate-800 leading-tight mb-4">@Model.Title</h1>
+                    <div class="flex flex-wrap items-center gap-4 text-sm font-bold text-slate-600">
+                        <div class="flex items-center gap-1.5 text-accent">
+                            @if (Model.TotalReviews > 0)
+                            {
+                                <i data-lucide="star" class="w-5 h-5 fill-accent"></i>
+                                <span class="text-lg">@Model.Rating.ToString("0.0")</span>
+                                <span class="text-slate-400 font-medium text-sm">(@Model.TotalReviews đánh giá)</span>
+                            }
+                            else
+                            {
+                                <span class="text-slate-400 font-bold uppercase tracking-wider text-xs">Chưa có đánh giá</span>
+                            }
+                        </div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
+                            <span>@Model.Destination?.Name</span>
+                        </div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="clock" class="w-4 h-4 text-primary"></i>
+                            <span>@Model.Duration</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:text-primary hover:border-primary hover:bg-primary/5 transition-all shadow-sm">
+                        <i data-lucide="share" class="w-5 h-5"></i>
+                    </button>
+                    <button class="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:text-red-500 hover:border-red-500 hover:bg-red-50 transition-all shadow-sm">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Gallery -->
+        @if (Model.Images != null && Model.Images.Any())
+        {
+            var images = Model.Images.ToList();
+            var count = images.Count;
+
+            <div class="grid @(count == 1 ? "grid-cols-1" : count == 2 ? "grid-cols-2" : count == 3 ? "grid-cols-3" : "grid-cols-4") grid-rows-2 gap-2 md:gap-4 h-[300px] md:h-[500px] mb-12 rounded-3xl overflow-hidden shadow-xl">
+                @if (count == 1)
+                {
+                    <div class="col-span-1 row-span-2 relative group cursor-pointer">
+                        <img src="@images[0].ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                }
+                else if (count == 2)
+                {
+                    <div class="col-span-1 row-span-2 relative group cursor-pointer">
+                        <img src="@images[0].ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    <div class="col-span-1 row-span-2 relative group cursor-pointer">
+                        <img src="@images[1].ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                }
+                else if (count == 3)
+                {
+                    <div class="col-span-2 row-span-2 relative group cursor-pointer">
+                        <img src="@images[0].ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    <div class="col-span-1 row-span-1 relative group cursor-pointer">
+                        <img src="@images[1].ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    <div class="col-span-1 row-span-1 relative group cursor-pointer">
+                        <img src="@images[2].ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-span-2 row-span-2 relative group cursor-pointer">
+                        <img src="@images[0].ImageUrl" alt="@Model.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                    </div>
+                    @for (int i = 1; i < Math.Min(5, count); i++)
+                    {
+                        <div class="relative group cursor-pointer">
+                            <img src="@images[i].ImageUrl" alt="Gallery image" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                            @if (i == 4 && count > 5)
+                            {
+                                <div class="absolute inset-0 bg-black/50 group-hover:bg-black/60 flex items-center justify-center transition-colors">
+                                    <span class="text-white text-3xl font-black">+@(count - 5)</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        }
+
+        <!-- Main Content & Sidebar -->
+        <div class="flex flex-col lg:flex-row gap-10">
+            <!-- Left Content -->
+            <div class="flex-1 space-y-12">
+                
+                <!-- Description -->
+                <section>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Tổng quan chuyến đi</h2>
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        @if(!string.IsNullOrEmpty(Model.Description)) {
+                            @Model.Description
+                        } else {
+                            <text>Trải nghiệm kỳ nghỉ tuyệt vời với hành trình được thiết kế tinh tế. Khám phá văn hóa độc đáo, thưởng thức ẩm thực địa phương đặc sắc và tận hưởng những khoảnh khắc đáng nhớ cùng VietExplore. Một chuyến đi không chỉ là tham quan, mà là một hành trình thức tỉnh mọi giác quan.</text>
+                        }
+                    </p>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                <!-- Highlights -->
+                <section>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Điểm nổi bật</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-5 h-5 text-primary"></i>
+                            </div>
+                            <p class="text-slate-600 font-medium pt-2">Hướng dẫn viên bản địa chuyên nghiệp, nhiệt tình</p>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-5 h-5 text-primary"></i>
+                            </div>
+                            <p class="text-slate-600 font-medium pt-2">Bao gồm các bữa ăn đặc sản chuẩn vị</p>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-5 h-5 text-primary"></i>
+                            </div>
+                            <p class="text-slate-600 font-medium pt-2">Bảo hiểm du lịch trọn gói cao cấp</p>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="check" class="w-5 h-5 text-primary"></i>
+                            </div>
+                            <p class="text-slate-600 font-medium pt-2">Xe đưa đón tận nơi tiêu chuẩn 5 sao</p>
+                        </div>
+                    </div>
+                </section>
+
+                <hr class="border-slate-200" />
+
+                <!-- Itinerary -->
+                <section>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <i data-lucide="map" class="w-6 h-6 text-primary"></i>
+                        Lịch trình chi tiết
+                    </h2>
+                    @if (Model.Itineraries != null && Model.Itineraries.Any())
+                    {
+                        <div class="space-y-6 relative before:absolute before:inset-y-0 before:left-7 before:w-0.5 before:bg-slate-200">
+                            @foreach (var item in Model.Itineraries.GroupBy(i => i.DayNumber).Select(g => g.First()).OrderBy(i => i.DayNumber))
+                            {
+                                <div class="relative flex gap-6">
+                                    <div class="w-14 h-14 rounded-2xl bg-accent/10 text-accent flex flex-col items-center justify-center flex-shrink-0 font-bold border border-accent/20 relative z-10 shadow-sm backdrop-blur-xl">
+                                        <span class="text-[10px] uppercase tracking-widest mb-0.5">Ngày</span>
+                                        <span class="text-xl leading-none">@item.DayNumber</span>
+                                    </div>
+                                    <div class="flex-1 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                                        <h3 class="text-lg font-bold text-primary-dark mb-4">@item.Title</h3>
+                                        <div class="text-slate-600 leading-relaxed text-[15px] space-y-2">
+                                            @foreach (var line in item.Description.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                                            {
+                                                <div class="flex items-start gap-2.5">
+                                                    <i data-lucide="chevron-right" class="w-4 h-4 text-accent flex-shrink-0 mt-1"></i>
+                                                    <span>@line</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="bg-slate-50 border border-slate-200 border-dashed rounded-3xl p-8 text-center text-slate-500 font-medium">
+                            <i data-lucide="calendar-off" class="w-10 h-10 mx-auto mb-3 text-slate-400"></i>
+                            Lịch trình cho tour này đang được cập nhật.
+                        </div>
+                    }
+                </section>
+
+            </div>
+
+            <!-- Right Sidebar: Booking Card -->
+            <div class="w-full lg:w-[380px] flex-shrink-0">
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl sticky top-28">
+                    <div class="flex items-end gap-2 mb-6 border-b border-slate-100 pb-6">
+                        <span class="text-3xl font-black text-primary-dark">$@Model.Price</span>
+                        <span class="text-slate-500 font-medium mb-1">/ khách</span>
+                    </div>
+
+                    <form action="/Booking/Checkout" method="get" class="space-y-6" id="bookingForm">
+                        <input type="hidden" name="tourId" value="@Model.Id" />
+                        <input type="hidden" name="adults" id="inputAdults" value="2" />
+                        <input type="hidden" name="children" id="inputChildren" value="0" />
+                        <input type="hidden" name="promoCode" id="inputPromo" value="" />
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block">Lịch khởi hành</label>
+                            <div class="relative">
+                                <i data-lucide="calendar" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                                <select name="scheduleId" required class="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-medium text-slate-700 appearance-none bg-white">
+                                    <option value="" disabled selected>Chọn ngày khởi hành...</option>
+                                    @if(Model.Schedules != null && Model.Schedules.Any())
+                                    {
+                                        foreach(var schedule in Model.Schedules)
+                                        {
+                                            if(schedule.AvailableSeats > 0)
+                                            {
+                                                <option value="@schedule.Id" data-price="@schedule.Price">@schedule.StartDate.ToString("dd/MM/yyyy") - Còn @schedule.AvailableSeats chỗ - $@schedule.Price</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@schedule.Id" disabled>@schedule.StartDate.ToString("dd/MM/yyyy") - Đã Hết Chỗ</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block text-center">Người lớn</label>
+                                <div class="flex items-center justify-between p-2 border border-slate-200 rounded-xl bg-slate-50">
+                                    <button type="button" onclick="updateGuests('adult', -1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-200 text-slate-600 transition-colors">
+                                        <i data-lucide="minus" class="w-4 h-4"></i>
+                                    </button>
+                                    <span class="font-bold text-lg text-slate-800" id="displayAdultCount">2</span>
+                                    <button type="button" onclick="updateGuests('adult', 1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-200 text-slate-600 transition-colors">
+                                        <i data-lucide="plus" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block text-center">Trẻ em</label>
+                                <div class="flex items-center justify-between p-2 border border-slate-200 rounded-xl bg-slate-50">
+                                    <button type="button" onclick="updateGuests('child', -1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-200 text-slate-600 transition-colors">
+                                        <i data-lucide="minus" class="w-4 h-4"></i>
+                                    </button>
+                                    <span class="font-bold text-lg text-slate-800" id="displayChildCount">0</span>
+                                    <button type="button" onclick="updateGuests('child', 1)" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-200 text-slate-600 transition-colors">
+                                        <i data-lucide="plus" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block">Mã giảm giá</label>
+                            
+                            @if(ViewBag.SavedPromos != null && ((IEnumerable<WebsiteTour.Models.Entities.PromoCode>)ViewBag.SavedPromos).Any())
+                            {
+                                <select id="savedPromoSelect" onchange="useSavedPromo()" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary outline-none transition-all font-medium text-slate-700 bg-slate-50 mb-2 appearance-none">
+                                    <option value="" disabled selected>Chọn voucher đã lưu...</option>
+                                    @foreach(var promo in (IEnumerable<WebsiteTour.Models.Entities.PromoCode>)ViewBag.SavedPromos)
+                                    {
+                                        <option value="@promo.Code">@promo.Code (Đơn từ $@promo.MinOrderValue)</option>
+                                    }
+                                </select>
+                            }
+
+                            <div class="flex gap-2">
+                                <input type="text" id="promoInput" placeholder="Nhập mã giảm giá..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary outline-none transition-all font-medium text-slate-700 uppercase" />
+                                <button type="button" onclick="applyPromo()" class="bg-slate-800 text-white px-4 rounded-xl font-bold hover:bg-slate-700 transition-colors whitespace-nowrap">Áp dụng</button>
+                            </div>
+                            <p id="promoMessage" class="text-xs font-bold mt-1 hidden"></p>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200">
+                            <div class="flex justify-between text-slate-600 mb-2 text-sm">
+                                <span>Người lớn ($@Model.Price) x <span id="displayAdult">2</span></span>
+                                <span class="font-bold text-slate-800" id="totalAdult">$@(Model.Price * 2)</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600 mb-2 text-sm">
+                                <span>Trẻ em ($@(Model.Price * 0.7m)) x <span id="displayChild">0</span></span>
+                                <span class="font-bold text-slate-800" id="totalChild">$0</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600 mb-2 text-sm">
+                                <span>Phí dịch vụ</span>
+                                <span class="font-bold text-slate-800">$10</span>
+                            </div>
+                            <div id="discountRow" class="flex justify-between text-green-600 mb-4 text-sm hidden">
+                                <span>Khuyến mãi</span>
+                                <span class="font-bold" id="totalDiscount">-$0</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center border-t border-slate-200 pt-4 mb-6">
+                                <span class="font-bold text-slate-800">Tổng cộng</span>
+                                <span class="text-3xl font-black text-primary-dark" id="finalTotal">$@((Model.Price * 2) + 10)</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-primary-dark transition-all active:scale-95 flex justify-center items-center gap-2">
+                            Tiến hành đặt Tour <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+
+                    <p class="text-center text-xs text-slate-400 mt-6 font-medium">Bạn sẽ không bị trừ tiền ngay bây giờ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let priceAdult = @Model.Price;
+        let priceChild = @(Model.Price * 0.7m); 
+        const serviceFee = 10;
+        
+        let adults = 2;
+        let children = 0;
+        let discount = 0;
+        let promoCodeApplied = "";
+
+        function updateGuests(type, change) {
+            if (type === 'adult') {
+                const newA = adults + change;
+                if (newA >= 1) adults = newA; // Min 1 adult
+            } else if (type === 'child') {
+                const newC = children + change;
+                if (newC >= 0) children = newC; // Min 0 child
+            }
+            
+            // Update UI Counters
+            document.getElementById('displayAdultCount').innerText = adults;
+            document.getElementById('displayChildCount').innerText = children;
+            document.getElementById('displayAdult').innerText = adults;
+            document.getElementById('displayChild').innerText = children;
+            
+            // Update Hidden inputs for form submit
+            document.getElementById('inputAdults').value = adults;
+            document.getElementById('inputChildren').value = children;
+            
+            if (promoCodeApplied) {
+                applyPromo();
+            } else {
+                updateTotals();
+            }
+        }
+
+        async function applyPromo() {
+            const code = document.getElementById('promoInput').value.trim().toUpperCase();
+            const msgEl = document.getElementById('promoMessage');
+            
+            if (code === "") {
+                discount = 0;
+                promoCodeApplied = "";
+                document.getElementById('inputPromo').value = "";
+                document.getElementById('discountRow').classList.add('hidden');
+                msgEl.classList.add('hidden');
+                updateTotals();
+                return;
+            }
+
+            const currentSubtotal = (adults * priceAdult) + (children * priceChild);
+            
+            try {
+                const response = await fetch(`/Home/ValidatePromo?code=${code}&total=${currentSubtotal}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    discount = data.discount;
+                    promoCodeApplied = data.code;
+                    document.getElementById('inputPromo').value = data.code;
+                    
+                    msgEl.innerText = data.message;
+                    msgEl.className = "text-xs font-bold mt-1 text-green-500 block";
+                    document.getElementById('discountRow').classList.remove('hidden');
+                    document.getElementById('totalDiscount').innerText = "-$" + discount.toFixed(0);
+                } else {
+                    discount = 0;
+                    promoCodeApplied = "";
+                    document.getElementById('inputPromo').value = "";
+                    
+                    msgEl.innerText = data.message;
+                    msgEl.className = "text-xs font-bold mt-1 text-red-500 block";
+                    document.getElementById('discountRow').classList.add('hidden');
+                    
+                    // Reset dropdown if failed
+                    var select = document.getElementById('savedPromoSelect');
+                    if(select) select.value = "";
+                }
+            } catch (err) {
+                console.error(err);
+            }
+            
+            updateTotals();
+        }
+
+        function useSavedPromo() {
+            var select = document.getElementById('savedPromoSelect');
+            if (select && select.value) {
+                document.getElementById('promoInput').value = select.value;
+                applyPromo();
+            }
+        }
+
+        function updateTotals() {
+            const tAdult = adults * priceAdult;
+            const tChild = children * priceChild;
+            const final = tAdult + tChild + serviceFee - discount;
+            
+            // Auto re-validate if promo code applied but subtotal drops below MinOrderValue
+            // by checking if promoCodeApplied is set.
+            if (promoCodeApplied) {
+                 // But wait, calling applyPromo here might cause infinite loop
+                 // So we don't call it here, we call it in updateGuests
+            }
+            
+            document.getElementById('totalAdult').innerText = '$' + tAdult.toFixed(0);
+            document.getElementById('totalChild').innerText = '$' + tChild.toFixed(0);
+            document.getElementById('finalTotal').innerText = '$' + Math.max(0, final).toFixed(0);
+        }
+
+        // --- Handle Itinerary Date Mapping ---
+        const scheduleSelect = document.querySelector('select[name="scheduleId"]');
+        const itineraryDates = document.querySelectorAll('.itinerary-date');
+
+        function updateItineraryDates() {
+            const selectedOption = scheduleSelect.options[scheduleSelect.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                // Update Prices based on schedule
+                const newPrice = parseFloat(selectedOption.dataset.price);
+                if (!isNaN(newPrice)) {
+                    priceAdult = newPrice;
+                    priceChild = newPrice * 0.7;
+                    
+                    // Update display prices in the breakdown
+                    document.querySelector('.text-3xl.font-black.text-primary-dark').innerText = '$' + newPrice;
+                    document.getElementById('displayAdult').previousElementSibling.innerText = `Người lớn ($${newPrice.toFixed(0)}) x `;
+                    document.getElementById('displayChild').previousElementSibling.innerText = `Trẻ em ($${(newPrice * 0.7).toFixed(0)}) x `;
+                }
+
+                // Parse date from text "dd/MM/yyyy - ..."
+                const dateStr = selectedOption.text.split(' - ')[0];
+                const [day, month, year] = dateStr.split('/').map(Number);
+                const startDate = new Date(year, month - 1, day);
+
+                itineraryDates.forEach(el => {
+                    const dayNum = parseInt(el.dataset.day);
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + (dayNum - 1));
+                    
+                    // Format to dd/MM
+                    const d = String(currentDate.getDate()).padStart(2, '0');
+                    const m = String(currentDate.getMonth() + 1).padStart(2, '0');
+                    el.innerText = `${d}/${m}`;
+                });
+            } else {
+                itineraryDates.forEach(el => el.innerText = '');
+            }
+            updateTotals();
+        }
+
+        if (scheduleSelect) {
+            scheduleSelect.addEventListener('change', updateItineraryDates);
+            // If already selected (browser refresh)
+            updateItineraryDates();
+        }
+    </script>
+}

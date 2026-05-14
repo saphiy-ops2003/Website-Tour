@@ -24,33 +24,33 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex h-full shadow-sm z-20">
         <div class="h-20 flex items-center px-8 border-b border-slate-100">
-            <a href="/Admin/Index" class="text-xl font-black text-primary tracking-tight">Admin<span class="text-accent">Panel</span></a>
+            <a href="/Admin/DashboardAdmin/Index" class="text-xl font-black text-primary tracking-tight">Admin<span class="text-accent">Panel</span></a>
         </div>
         
         <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
             <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Quản lý chung</p>
             
-            <a href="/Admin/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+            <a href="/Admin/DashboardAdmin/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Tổng quan
             </a>
             
-            <a href="/Admin/Bookings" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Bookings" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+            <a href="/Admin/BookingAdmin/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Bookings" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
                 <i data-lucide="shopping-bag" class="w-5 h-5"></i> Đơn Đặt Tour
             </a>
             
-            <a href="/Admin/Tours" class="@(ViewContext.RouteData.Values["Action"]?.ToString() is "Tours" or "CreateTour" or "EditTour" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+            <a href="/Admin/ToursAdmin/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() is "Index" or "CreateTour" or "EditTour" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
                 <i data-lucide="map" class="w-5 h-5"></i> Danh sách Tour
             </a>
 
-            <a href="/Admin/Destinations" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Destinations" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+            <a href="/Admin/DestinationAdmin/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
                 <i data-lucide="map-pin" class="w-5 h-5"></i> Vùng & Điểm đến
             </a>
 
-            <a href="/Admin/Regions" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Regions" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+            <a href="/Admin/RegionAdmin/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
                 <i data-lucide="layers" class="w-5 h-5"></i> Vùng
             </a>
             
-            <a href="/Admin/Promos" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Promos" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
+            <a href="/Admin/PromotionAdmin/Index" class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Promos" ? "bg-primary text-white" : "text-slate-600 hover:bg-slate-50 hover:text-primary") flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all">
                 <i data-lucide="percent" class="w-5 h-5"></i> Mã Giảm Giá
             </a>
             
@@ -68,7 +68,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-bold text-slate-800">Admin</p>
-                    <a href="/Home/Logout" class="text-xs text-red-500 font-semibold hover:underline">Đăng xuất</a>
+                    <a href="/Accout/Logout" class="text-xs text-red-500 font-semibold hover:underline">Đăng xuất</a>
                 </div>
             </div>
         </div>

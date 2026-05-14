@@ -1,0 +1,96 @@
+@model IEnumerable<WebsiteTour.Models.Entities.Booking>
+@{
+    ViewData["Title"] = "Lịch sử Đặt Tour";
+}
+
+<div class="bg-slate-50 min-h-screen py-10 font-sans">
+    <div class="max-w-5xl mx-auto px-6">
+        
+        <div class="mb-8">
+            <h1 class="text-3xl font-black text-slate-800 mb-2">Lịch sử Đặt Tour</h1>
+            <p class="text-slate-500 font-medium">Quản lý và theo dõi các hành trình bạn đã đặt cùng VietExplore.</p>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="bg-white rounded-3xl border border-slate-200 p-16 text-center shadow-sm">
+                <div class="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="calendar-x" class="w-10 h-10 text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Bạn chưa có chuyến đi nào</h3>
+                <p class="text-slate-500 mb-8 max-w-sm mx-auto">Có vẻ như bạn chưa đặt bất kỳ hành trình nào. Hãy khám phá các tour hấp dẫn và bắt đầu chuyến đi của bạn nhé!</p>
+                <a href="/Tour/Tours" class="inline-flex items-center gap-2 bg-primary text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:bg-primary-dark transition-all active:scale-95 no-underline">
+                    Khám phá Tour ngay <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="space-y-6">
+                @foreach (var booking in Model)
+                {
+                    <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all p-6 flex flex-col md:flex-row gap-6">
+                        <!-- Tour Image -->
+                        <div class="w-full md:w-48 h-48 rounded-2xl overflow-hidden flex-shrink-0 relative">
+                            <img src="@booking.Tour?.Images.FirstOrDefault()?.ImageUrl" alt="@booking.Tour?.Title" class="w-full h-full object-cover" />
+                            @if (booking.Status == "Pending")
+                            {
+                                <div class="absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">Đang chờ</div>
+                            }
+                            else if (booking.Status == "Completed")
+                            {
+                                <div class="absolute top-2 left-2 bg-green-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">Hoàn thành</div>
+                            }
+                        </div>
+
+                        <!-- Booking Details -->
+                        <div class="flex-1 flex flex-col">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <div class="text-xs font-bold text-primary uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                                        <i data-lucide="map-pin" class="w-3 h-3"></i> @booking.Tour?.Destination?.Name
+                                    </div>
+                                    <h3 class="text-xl font-bold text-slate-800 line-clamp-1 hover:text-primary transition-colors cursor-pointer">
+                                        <a href="/Tour/TourDetail/@booking.TourId" class="text-slate-800 hover:text-primary no-underline">@booking.Tour?.Title</a>
+                                    </h3>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Mã đơn</div>
+                                    <div class="font-bold text-slate-700">#BKG-@booking.Id.ToString("D5")</div>
+                                </div>
+                            </div>
+                            
+                            <p class="text-sm text-slate-500 mb-6 flex-1">@booking.Tour?.Duration</p>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-100 mt-auto">
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ngày đặt</div>
+                                    <div class="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                                        <i data-lucide="calendar-days" class="w-4 h-4 text-slate-400"></i> @booking.BookingDate.ToString("dd/MM/yyyy")
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Khách</div>
+                                    <div class="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                                        <i data-lucide="users" class="w-4 h-4 text-slate-400"></i> 2 người
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tổng Tiền</div>
+                                    <div class="text-sm font-black text-primary-dark">
+                                        $@booking.TotalPrice
+                                    </div>
+                                </div>
+                                <div class="flex justify-end items-center col-span-2 md:col-span-1">
+                                    <a href="/Booking/Ticket/@booking.Id" class="inline-flex items-center gap-2 text-xs font-bold bg-primary/10 text-primary px-4 py-2.5 rounded-xl hover:bg-primary hover:text-white transition-all no-underline w-full md:w-auto justify-center shadow-sm">
+                                        <i data-lucide="ticket" class="w-4 h-4"></i> Lấy Vé (PDF)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
