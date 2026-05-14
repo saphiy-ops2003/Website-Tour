@@ -31,29 +31,38 @@
     </div>
   </section>
 
-  <!-- Stats Section -->
-  <section class="py-12 bg-white border-b border-slate-100">
-    <div class="max-w-7xl mx-auto px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-slate-100">
-        <div>
-          <div class="text-4xl md:text-5xl font-black text-primary mb-2">15K+</div>
-          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Khách Hàng Hài Lòng</p>
+ <!-- Personalized Recommendations (If user has data) -->
+  @if (Model.RecommendedTours.Any())
+  {
+    <section class="py-24 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-sm font-black text-primary uppercase tracking-widest mb-3">Dành Riêng Cho Bạn</h2>
+          <h3 class="text-3xl md:text-4xl font-bold text-slate-800">Gợi Ý Được Cá Nhân Hóa</h3>
+          <p class="text-slate-500 mt-4">Hệ thống AI của chúng tôi phân tích sở thích của bạn để đưa ra những lịch trình hoàn hảo nhất.</p>
         </div>
-        <div>
-          <div class="text-4xl md:text-5xl font-black text-primary mb-2">500+</div>
-          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Tour Trải Nghiệm</p>
-        </div>
-        <div>
-          <div class="text-4xl md:text-5xl font-black text-primary mb-2">63</div>
-          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Tỉnh Thành Phủ Sóng</p>
-        </div>
-        <div>
-          <div class="text-4xl md:text-5xl font-black text-accent mb-2">4.9</div>
-          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Điểm Đánh Giá</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          @foreach (var tour in Model.RecommendedTours.Take(3))
+          {
+            <a href="/Home/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 relative no-underline">
+              <div class="relative h-64 overflow-hidden">
+                <img src="@tour.Images.FirstOrDefault()?.ImageUrl" alt="@tour.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+              </div>
+              <div class="p-6 flex-1 flex flex-col">
+                <h3 class="font-bold text-xl text-slate-800 mb-2 line-clamp-2 leading-snug group-hover:text-primary transition-colors">@tour.Title</h3>
+                <p class="text-sm text-slate-500 mb-6">@tour.Duration • @tour.Destination?.Name</p>
+                <div class="mt-auto flex items-center justify-between">
+                  <div class="font-black text-2xl text-primary-dark">$@tour.Price</div>
+                  <div class="px-4 py-2 bg-primary/10 text-primary font-bold rounded-xl group-hover:bg-primary group-hover:text-white transition-all">Xem Tour</div>
+                </div>
+              </div>
+            </a>
+          }
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  }
 
   <!-- Features / Why Choose Us -->
   <section id="why-choose-us" class="py-24 bg-slate-50">
@@ -211,39 +220,30 @@
       </div>
     </div>
   </section>
-
-  <!-- Personalized Recommendations (If user has data) -->
-  @if (Model.RecommendedTours.Any())
-  {
-    <section class="py-24 bg-slate-50">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-          <h2 class="text-sm font-black text-primary uppercase tracking-widest mb-3">Dành Riêng Cho Bạn</h2>
-          <h3 class="text-3xl md:text-4xl font-bold text-slate-800">Gợi Ý Được Cá Nhân Hóa</h3>
-          <p class="text-slate-500 mt-4">Hệ thống AI của chúng tôi phân tích sở thích của bạn để đưa ra những lịch trình hoàn hảo nhất.</p>
+  <!-- Stats Section -->
+  <section class="py-12 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-slate-100">
+        <div>
+          <div class="text-4xl md:text-5xl font-black text-primary mb-2">15K+</div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Khách Hàng Hài Lòng</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          @foreach (var tour in Model.RecommendedTours.Take(3))
-          {
-            <a href="/Home/TourDetail/@tour.Id" class="group cursor-pointer flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 relative no-underline">
-              <div class="relative h-64 overflow-hidden">
-                <img src="@tour.Images.FirstOrDefault()?.ImageUrl" alt="@tour.Title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
-              </div>
-              <div class="p-6 flex-1 flex flex-col">
-                <h3 class="font-bold text-xl text-slate-800 mb-2 line-clamp-2 leading-snug group-hover:text-primary transition-colors">@tour.Title</h3>
-                <p class="text-sm text-slate-500 mb-6">@tour.Duration • @tour.Destination?.Name</p>
-                <div class="mt-auto flex items-center justify-between">
-                  <div class="font-black text-2xl text-primary-dark">$@tour.Price</div>
-                  <div class="px-4 py-2 bg-primary/10 text-primary font-bold rounded-xl group-hover:bg-primary group-hover:text-white transition-all">Xem Tour</div>
-                </div>
-              </div>
-            </a>
-          }
+        <div>
+          <div class="text-4xl md:text-5xl font-black text-primary mb-2">500+</div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Tour Trải Nghiệm</p>
+        </div>
+        <div>
+          <div class="text-4xl md:text-5xl font-black text-primary mb-2">63</div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Tỉnh Thành Phủ Sóng</p>
+        </div>
+        <div>
+          <div class="text-4xl md:text-5xl font-black text-accent mb-2">4.9</div>
+          <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Điểm Đánh Giá</p>
         </div>
       </div>
-    </section>
-  }
+    </div>
+  </section>
+ 
 
   <!-- Call To Action -->
   <section class="py-24 relative overflow-hidden">
